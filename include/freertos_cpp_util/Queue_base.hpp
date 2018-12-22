@@ -10,6 +10,7 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+#include <chrono>
 #include <type_traits>
 
 class Queue_base
@@ -73,13 +74,34 @@ public:
 
 	virtual bool pop_front(T* const item, const TickType_t xTicksToWait) = 0;
 
+	template< class Rep, class Period >
+	bool pop_front(T* const item, const std::chrono::duration<Rep,Period>& duration)
+	{
+		std::chrono::milliseconds duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+		return pop_front(item, pdMS_TO_TICKS(duration_ms.count()));
+	}
+
 	virtual bool push_back(const T& item) = 0;
 
 	virtual bool push_back(const T& item, const TickType_t xTicksToWait) = 0;
 
+	template< class Rep, class Period >
+	bool push_back(const T& item, const std::chrono::duration<Rep,Period>& duration)
+	{
+		std::chrono::milliseconds duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+		return push_back(item, pdMS_TO_TICKS(duration_ms.count()));
+	}
+
 	virtual bool push_front(const T& item) = 0;
 
 	virtual bool push_front(const T& item, const TickType_t xTicksToWait) = 0;
+
+	template< class Rep, class Period >
+	bool push_front(const T& item, const std::chrono::duration<Rep,Period>& duration)
+	{
+		std::chrono::milliseconds duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+		return push_front(item, pdMS_TO_TICKS(duration_ms.count()));
+	}
 
 	virtual bool push_front_isr(const T& item) = 0;
 
