@@ -35,6 +35,7 @@ public:
 
 	bool push_back(const T& item, const TickType_t xTicksToWait) override
 	{
+		//calls copy constructor if there is a free node
 		T* ptr = m_pool.try_allocate(xTicksToWait, item);
 
 		if(!ptr)
@@ -42,6 +43,7 @@ public:
 			return false;
 		}
 
+		//stash our ref
 		if(!m_alloc_queue.push_back(ptr, 0))
 		{
 			return false;
