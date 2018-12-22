@@ -7,13 +7,15 @@
 
 #pragma once
 
+#include "freertos_cpp_util/Non_copyable.hpp"
+
 #include "freertos_cpp_util/object_pool/Object_pool_fwd.hpp"
 
 #include <type_traits>
 #include <utility>
 
 template< typename T>
-class Object_pool_base
+class Object_pool_base : private Non_copyable
 {
 public:
 

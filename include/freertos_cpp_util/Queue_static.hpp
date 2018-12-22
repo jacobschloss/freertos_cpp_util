@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "freertos_cpp_util/Queue_static_pod.hpp"
+#include "freertos_cpp_util/object_pool/Object_pool.hpp"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -35,26 +35,9 @@ public:
 
 	bool push_back(const T& item, const TickType_t xTicksToWait)
 	{
-		TickType_t ticks_left = xTicksToWait;
-		TimeOut_t xTimeOut;
-		vTaskSetTimeOutState( &xTimeOut );
+		T* ptr = m_pool.try_allocate(xTicksToWait, item);
 
-		T* ptr = nullptr;
-		if(!m_free_queue.pop_front(&ptr, ticks_left))
-		{
-			return false;
-		}
-
-		//recalculate how long to wait
-		if(pdTRUE == xTaskCheckForTimeOut(&xTimeOut, &ticks_left))
-		{
-			ticks_left = 0;
-		}
-
-		//copy construct
-		ptr->T(item);
-
-		if(!m_alloc_queue.push_back(ptr, ticks_left))
+		if(!m_alloc_queue.push_back(ptr, 0))
 		{
 			return false;
 		}
@@ -64,10 +47,8 @@ public:
 
 protected:
 
-	typedef std::aligned_storage_t<sizeof(T), alignof(T)> Alligned_T;
+	//
+	Object_pool<T, LEN> m_pool;
 
-	Queue_static_pod<Alligned_T*, LEN> m_free_queue;
 	Queue_static_pod<T*, LEN> m_alloc_queue;
-
-	std::array<Alligned_T, LEN> m_data_buf;
 };

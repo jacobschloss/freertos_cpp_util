@@ -12,6 +12,7 @@
 #include "freertos_cpp_util/object_pool/Object_pool_node.hpp"
 #include "freertos_cpp_util/object_pool/Object_pool_base.hpp"
 
+#include <chrono>
 #include <type_traits>
 #include <utility>
 
@@ -37,30 +38,30 @@ public:
 		}
 	}
 
-	// template<typename... Args>
-	// T* allocate(const TickType_t xTicksToWait, Args&&... args)
-	// {
-	// 	Node_T* node = nullptr;
-	// 	if(!m_free_nodes.pop_front(&node, xTicksToWait))
-	// 	{
-	// 		return false;
-	// 	}
+	template<class Rep, class Period, typename... Args>
+	T* try_allocate_for(const std::chrono::duration<Rep,Period>& duration, Args&&... args)
+	{
+		std::chrono::milliseconds duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 
-	// 	return node->allocate(std::forward<Args>(args)...);
-	// }
+		return try_allocate_for_ticks(pdMS_TO_TICKS(duration_ms.count()), std::forward<Args>(args)...);
+	}
 
 	template<typename... Args>
-	T* allocate(Args&&... args)
+	T* try_allocate_for_ticks(const TickType_t xTicksToWait, Args&&... args)
 	{
 		Node_T* node = nullptr;
-		if(!m_free_nodes.pop_front(&node))
+		if(!m_free_nodes.pop_front(&node, xTicksToWait))
 		{
 			return nullptr;
 		}
 
-		T* const val_ptr = node->allocate(std::forward<Args>(args)...);
+		return node->allocate(std::forward<Args>(args)...);
+	}
 
-		return val_ptr;
+	template<typename... Args>
+	T* allocate(Args&&... args)
+	{
+		return try_allocate_for_ticks(0, std::forward<Args>(args)...);
 	}
 
 	//convinence function, if you don't know or care which pool owns it
@@ -89,13 +90,13 @@ public:
 
 	typedef std::unique_ptr<T, Node_T_deleter> unique_node_ptr;
 
-	// template<typename... Args>
-	// unique_node_ptr allocate_unique(const TickType_t xTicksToWait, Args&&... args)
-	// {
-	// 	T* val = allocate(xTicksToWait, std::forward<Args>(args)...);
+	template<typename... Args>
+	unique_node_ptr try_allocate_for_ticks_unique(const TickType_t xTicksToWait, Args&&... args)
+	{
+		T* val = try_allocate_for_ticks(xTicksToWait, std::forward<Args>(args)...);
 
-	// 	return unique_node_ptr(val);
-	// }
+		return unique_node_ptr(val);
+	}
 
 	template<typename... Args>
 	unique_node_ptr allocate_unique(Args&&... args)

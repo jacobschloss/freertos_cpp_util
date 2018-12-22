@@ -21,46 +21,15 @@ public:
 
 	typedef typename Object_pool_base<T>::Heap_element_T Heap_element_T;
 
-	Object_pool_node()
+	Object_pool_node() : m_pool_ptr(nullptr), m_val(nullptr)
 	{
-		m_pool_ptr = nullptr;
-		m_val = nullptr;
+		
 	}
 
 	Object_pool_node(Object_pool_base<T>* const pool, T* const val)
 	{
 		m_pool_ptr = pool;
 		m_val = val;
-	}
-
-	Object_pool_node(const Object_pool_node& rhs)
-	{
-		if(this != &rhs)
-		{
-			*this = rhs;
-		}
-	}
-
-	Object_pool_node& operator=(const Object_pool_node& rhs)
-	{
-		m_pool_ptr = rhs.m_pool_ptr;
-		m_val = rhs.m_val;
-
-		return *this;
-	}
-
-	~Object_pool_node()
-	{
-		//doing this will likely break things
-		//better to leak mem?
-		//although, if this is going out of scope the pool is likely also being deleted
-		//so there will be no mem to leak.....
-		//maybe through an exception
-		//this never should be called if m_val is not null
-		//if(m_val != nullptr)
-		//{
-			//get_val()->~T();
-		//}
 	}
 
 	template<typename... Args>
