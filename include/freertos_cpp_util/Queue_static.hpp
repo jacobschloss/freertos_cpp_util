@@ -42,8 +42,8 @@ public:
 			return false;
 		}
 
-		//copy over
-		*item = *ptr;
+		//use move, it might be optimized
+		*item = std::move(*ptr);
 
 		//free our internal copy
 		m_pool.free(ptr);
