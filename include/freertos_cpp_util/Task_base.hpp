@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "freertos_cpp_util/Non_copyable.hpp"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -15,7 +17,7 @@ extern "C"
 	void FreeRTOS_task_dispatch(void* ctx);
 }
 
-class Task_base
+class Task_base : private Non_copyable
 {
 public:
 
