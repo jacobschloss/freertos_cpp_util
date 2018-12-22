@@ -24,14 +24,38 @@ public:
 		xQueueReset(m_queue);
 	}
 
+	size_t size() const
+	{
+		return uxQueueMessagesWaiting(m_queue);
+	}
+
+	size_t size_isr() const
+	{
+		return uxQueueMessagesWaitingFromISR(m_queue);
+	}
+
 	bool full() const
 	{
 		return 0 == uxQueueSpacesAvailable(m_queue);
 	}
 
+	bool full_isr() const
+	{
+		BaseType_t ret = xQueueIsQueueFullFromISR(m_queue);
+
+		return pdFALSE != ret;
+	}
+
 	bool empty() const
 	{
-		return 0 == uxQueueMessagesWaiting(m_queue);	
+		return 0 == size();
+	}
+
+	bool empty_isr() const
+	{
+		BaseType_t ret = xQueueIsQueueEmptyFromISR(m_queue);
+
+		return pdFALSE != ret;
 	}
 
 protected:
