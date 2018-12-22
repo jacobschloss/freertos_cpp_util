@@ -8,8 +8,8 @@
 #pragma once
 
 #include "freertos_cpp_util/object_pool/Object_pool_fwd.hpp"
+#include "freertos_cpp_util/object_pool/Object_pool_base.hpp"
 
-#include <array>
 #include <memory>
 #include <utility>
 
@@ -19,18 +19,34 @@ class Object_pool_node
 
 public:
 
+	typedef typename Object_pool_base<T>::Heap_element_T Heap_element_T;
+
 	Object_pool_node()
 	{
-		set_pool(nullptr);
-		set_this();
-		set_val(nullptr);
+		m_pool_ptr = nullptr;
+		m_val = nullptr;
 	}
 
 	Object_pool_node(Object_pool_base<T>* const pool, T* const val)
 	{
-		set_pool(pool);
-		set_this();
-		set_val(val);
+		m_pool_ptr = pool;
+		m_val = val;
+	}
+
+	Object_pool_node(const Object_pool_node& rhs)
+	{
+		if(this != &rhs)
+		{
+			*this = rhs;
+		}
+	}
+
+	Object_pool_node& operator=(const Object_pool_node& rhs)
+	{
+		m_pool_ptr = rhs.m_pool_ptr;
+		m_val = rhs.m_val;
+
+		return *this;
 	}
 
 	~Object_pool_node()
@@ -50,66 +66,38 @@ public:
 	template<typename... Args>
 	T* allocate(Args&&... args)
 	{
-		T* const val_ptr = get_val();
+		::new(static_cast<void*>(m_val)) T(std::forward<Args>(args)...);
 
-		if(val_ptr == nullptr)
-		{
-			return nullptr;
-		}
-
-		::new(static_cast<void*>(val_ptr)) T(std::forward<Args>(args)...);
-
-		return val_ptr;
+		return m_val;
 	}
 
 	void deallocate()
 	{
-		T* const val_ptr = get_val();
-
-		if(val_ptr != nullptr)
+		if(m_val != nullptr)
 		{
-			val_ptr->~T();
+			m_val->~T();
 		}
 	}
 
-	static Object_pool_node<T>* get_this_from_val(void* val)
+	static Object_pool_node<T>* get_this_from_val_ptr(void* val_ptr)
 	{
-		void** ptr = &val;
-		return static_cast< Object_pool_node<T>* >(ptr[-1]);
+		//6.7.2.1-13. A pointer to a structure object, suitably converted, points to its initial member
+		Heap_element_T* ptr = reinterpret_cast<Heap_element_T*>(val_ptr);
+		return ptr->node;
 	}
 
-	T* get_val() const
+	T* get_val_ptr() const
 	{
-		return static_cast< T* >(m_ptr_pack[2]);
+		return m_val;
 	}
-	Object_pool_base<T>* get_pool() const
+	Object_pool_base<T>* get_pool_ptr() const
 	{
-		return static_cast< Object_pool_base<T>* >(m_ptr_pack[0]);
+		return m_pool_ptr;
 	}
 	
 protected:
 
-	void set_pool(Object_pool_base<T>* pool)
-	{
-		m_ptr_pack[0] = pool;
-	}
-	void set_this()
-	{
-		m_ptr_pack[1] = this;
-	}
-	void set_val(T* val)
-	{
-		m_ptr_pack[2] = val;
-	}
-
-	Object_pool_node<T>* get_this() const
-	{
-		return static_cast< Object_pool_node<T>* >(m_ptr_pack[1]);
-	}
-
-	//0 - Object_pool_base<T>* m_pool;
-	//1 - Object_pool_node<T>* m_this;
-	//2 - T* m_val;
-	std::array<void*, 3> m_ptr_pack;
+	Object_pool_base<T>* m_pool_ptr;
+	T* m_val;
 };
 

@@ -10,30 +10,10 @@
 #include "freertos_cpp_util/Queue_static_pod.hpp"
 
 #include "freertos_cpp_util/object_pool/Object_pool_node.hpp"
+#include "freertos_cpp_util/object_pool/Object_pool_base.hpp"
 
 #include <type_traits>
 #include <utility>
-
-template< typename T>
-class Object_pool_base
-{
-public:
-
-	typedef std::aligned_storage_t<sizeof(T), alignof(T)> Aligned_T;
-	typedef Object_pool_node<T> Node_T;
-
-	Object_pool_base() = default;
-	virtual ~Object_pool_base()
-	{
-
-	}
-
-	virtual void deallocate(T* const ptr) = 0;
-	virtual void deallocate(Node_T* const node) = 0;
-
-protected:
-
-};
 
 template< typename T, size_t LEN >
 class Object_pool : public Object_pool_base<T>
@@ -43,13 +23,17 @@ public:
 
 	using typename Object_pool_base<T>::Aligned_T;
 	using typename Object_pool_base<T>::Node_T;
+	using typename Object_pool_base<T>::Heap_element_T;
 
 	Object_pool()
 	{
 		for(size_t i = 0; i < LEN; i++)
 		{
-			void* mem_ptr = &m_mem_pool[i];
-			m_node_pool[i] = Node_T(this, static_cast<T*>(mem_ptr));
+			Heap_element_T* const mem_ptr = &m_mem_pool[i];
+
+			m_node_pool[i] = Node_T(this, reinterpret_cast<T*>(&mem_ptr->val));
+			mem_ptr->node = &m_node_pool[i];
+
 			m_free_nodes.push_back(&m_node_pool[i]);
 		}
 	}
@@ -75,30 +59,21 @@ public:
 			return nullptr;
 		}
 
-		return node->allocate(std::forward<Args>(args)...);
+		T* const val_ptr = node->allocate(std::forward<Args>(args)...);
+
+		return val_ptr;
 	}
 
-	void deallocate(T* const ptr) override
+	//convinence function, if you don't know or care which pool owns it
+	//will lookup the correct pool to return to
+	//slightly slower than pool direct deallocation
+	static void free(T* const ptr)
 	{
-		Node_T* node = Node_T::get_this_from_val(ptr);
-		node->deallocate();
+		Node_T* node = Node_T::get_this_from_val_ptr(ptr);
 
-		if(!m_free_nodes.push_back(node))
-		{
-			//this should never fail
-			//very bad if this fails
-		}
-	}
+		Object_pool_base<T>* pool = node->get_pool_ptr();
 
-	void deallocate(Node_T* const node) override
-	{
-		node->deallocate();
-
-		if(!m_free_nodes.push_back(node))
-		{
-			//this should never fail
-			//very bad if this fails
-		}
+		pool->deallocate(node);
 	}
 
 	class Node_T_deleter
@@ -106,8 +81,8 @@ public:
 	public:
 		void operator()(T* ptr) const
 		{
-			Node_T* node = Node_T::get_this_from_val(ptr);
-			Object_pool_base<T>* pool = node->get_pool();
+			Node_T* node = Node_T::get_this_from_val_ptr(ptr);
+			Object_pool_base<T>* pool = node->get_pool_ptr();
 
 			pool->deallocate(node);
 		}
@@ -131,10 +106,40 @@ public:
 		return unique_node_ptr(val);
 	}
 
+	//the "best" deallocator
+	//node must belong to this pool
+	void deallocate(Node_T* const node) override
+	{
+		node->deallocate();
+
+		// Object_pool_base<T>* pool = node->get_pool();
+		// if(pool != this)
+		// {
+		// 	//you tried to delete a foreign node
+		// 	//that is bad
+		// }
+
+		if(!m_free_nodes.push_front(node))
+		{
+			//this should never fail
+			//very bad if this fails
+		}
+	}
+
+	//look up the node based on the ptr
+	//ptr must belong to this pool
+	void deallocate(T* const ptr) override
+	{
+		Node_T* node = Node_T::get_this_from_val_ptr(ptr);
+		
+		deallocate(node);
+	}
+
 protected:
 
-	std::array<Aligned_T, LEN> m_mem_pool;
+	std::array<Heap_element_T, LEN> m_mem_pool;
 	std::array<Node_T,    LEN> m_node_pool;
 
+	//tracks free nodes
 	Queue_static_pod<Node_T*, LEN> m_free_nodes;
 };
