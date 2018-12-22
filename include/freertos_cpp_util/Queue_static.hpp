@@ -101,21 +101,25 @@ public:
 
 	bool push_front_isr(const T& item)
 	{
+		//Object_pool is not isr safe yet
 		return false;
 	}
 
 	bool push_front_isr(const T& item, BaseType_t* const pxHigherPriorityTaskWoken)
 	{
+		//Object_pool is not isr safe yet
 		return false;
 	}
 
 	bool push_back_isr(const T& item)
 	{
+		//Object_pool is not isr safe yet
 		return false;
 	}
 
 	bool push_back_isr(const T& item, BaseType_t* const pxHigherPriorityTaskWoken)
 	{
+		//Object_pool is not isr safe yet
 		return false;
 	}
 
