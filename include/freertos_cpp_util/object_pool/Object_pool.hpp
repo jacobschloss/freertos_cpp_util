@@ -29,12 +29,11 @@ public:
 	{
 		for(size_t i = 0; i < LEN; i++)
 		{
-			Heap_element_T* const mem_ptr = &m_mem_pool[i];
+			Heap_element_T* const mem_ptr = &m_mem_node_pool[i];
 
-			m_node_pool[i] = Node_T(this, reinterpret_cast<T*>(&mem_ptr->val));
-			mem_ptr->node = &m_node_pool[i];
+			mem_ptr->node = Node_T(this, reinterpret_cast<T*>(&mem_ptr->val));
 
-			m_free_nodes.push_back(&m_node_pool[i]);
+			m_free_nodes.push_back(&mem_ptr->node);
 		}
 	}
 
@@ -137,8 +136,8 @@ public:
 
 protected:
 
-	std::array<Heap_element_T, LEN> m_mem_pool;
-	std::array<Node_T,    LEN> m_node_pool;
+	//heap element: node and aligned storage
+	std::array<Heap_element_T, LEN> m_mem_node_pool;
 
 	//tracks free nodes
 	Queue_static_pod<Node_T*, LEN> m_free_nodes;

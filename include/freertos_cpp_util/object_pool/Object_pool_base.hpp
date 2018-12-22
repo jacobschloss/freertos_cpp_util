@@ -25,7 +25,7 @@ public:
 	struct Heap_element_T
 	{
 		Aligned_T val;
-		Node_T* node;
+		Node_T node;
 	};
 
 	Object_pool_base() = default;
