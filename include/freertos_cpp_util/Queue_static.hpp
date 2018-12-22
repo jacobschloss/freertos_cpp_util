@@ -22,10 +22,33 @@ public:
 	~Queue_static() override
 	{
 		T* ptr = nullptr;
-		while(m_alloc_queue.pop_front(ptr))
+		while(m_alloc_queue.pop_front(&ptr))
 		{
 			m_pool.free(ptr);
 		}
+	}
+
+	bool pop_front(T* const item) override
+	{
+		return pop_front(item, 0);
+	}
+
+	bool pop_front(T* const item, const TickType_t xTicksToWait) override
+	{
+		//do we have one?
+		T* ptr = nullptr;
+		if(!m_alloc_queue.pop_front(&ptr, xTicksToWait))
+		{
+			return false;
+		}
+
+		//copy over
+		*item = *ptr;
+
+		//free our internal copy
+		m_pool.free(ptr);
+
+		return true;
 	}
 
 	bool push_back(const T& item) override
@@ -36,7 +59,7 @@ public:
 	bool push_back(const T& item, const TickType_t xTicksToWait) override
 	{
 		//calls copy constructor if there is a free node
-		T* ptr = m_pool.try_allocate(xTicksToWait, item);
+		T* const ptr = m_pool.try_allocate_for_ticks(xTicksToWait, item);
 
 		if(!ptr)
 		{
@@ -52,32 +75,52 @@ public:
 		return true;
 	}
 
-	bool pop_front(T* const item) override
+	bool push_front(const T& item) override
 	{
-		return pop_front(item, 0);
+		return push_front(item, 0);
 	}
 
-	bool pop_front(T* const item, const TickType_t xTicksToWait) override
+	bool push_front(const T& item, const TickType_t xTicksToWait) override
 	{
-		//do we have one?
-		T* ptr = nullptr;
-		if(!m_alloc_queue.pop_front(ptr, xTicksToWait))
+		//calls copy constructor if there is a free node
+		T* const ptr = m_pool.try_allocate_for_ticks(xTicksToWait, item);
+
+		if(!ptr)
 		{
 			return false;
 		}
 
-		//copy over
-		*item = ptr;
-
-		//free our internal copy
-		m_pool.free(ptr);
+		//stash our ref
+		if(!m_alloc_queue.push_front(ptr, 0))
+		{
+			return false;
+		}
 
 		return true;
 	}
 
+	bool push_front_isr(const T& item)
+	{
+		return false;
+	}
+
+	bool push_front_isr(const T& item, BaseType_t* const pxHigherPriorityTaskWoken)
+	{
+		return false;
+	}
+
+	bool push_back_isr(const T& item)
+	{
+		return false;
+	}
+
+	bool push_back_isr(const T& item, BaseType_t* const pxHigherPriorityTaskWoken)
+	{
+		return false;
+	}
+
 protected:
 
-	//
 	Object_pool<T, LEN> m_pool;
 
 	Queue_static_pod<T*, LEN> m_alloc_queue;
