@@ -54,20 +54,20 @@ public:
 		}
 	}
 
-	template<typename... Args>
-	T* allocate(const TickType_t xTicksToWait, Args... args)
-	{
-		Node_T* node = nullptr;
-		if(!m_free_nodes.pop_front(&node, xTicksToWait))
-		{
-			return false;
-		}
+	// template<typename... Args>
+	// T* allocate(const TickType_t xTicksToWait, Args&&... args)
+	// {
+	// 	Node_T* node = nullptr;
+	// 	if(!m_free_nodes.pop_front(&node, xTicksToWait))
+	// 	{
+	// 		return false;
+	// 	}
 
-		return node->allocate(std::forward<Args>(args)...);
-	}
+	// 	return node->allocate(std::forward<Args>(args)...);
+	// }
 
 	template<typename... Args>
-	T* allocate(Args... args)
+	T* allocate(Args&&... args)
 	{
 		Node_T* node = nullptr;
 		if(!m_free_nodes.pop_front(&node))
@@ -115,16 +115,16 @@ public:
 
 	typedef std::unique_ptr<T, Node_T_deleter> unique_node_ptr;
 
-	template<typename... Args>
-	unique_node_ptr allocate_unique(const TickType_t xTicksToWait, Args... args)
-	{
-		T* val = allocate(xTicksToWait, std::forward<Args>(args)...);
+	// template<typename... Args>
+	// unique_node_ptr allocate_unique(const TickType_t xTicksToWait, Args&&... args)
+	// {
+	// 	T* val = allocate(xTicksToWait, std::forward<Args>(args)...);
 
-		return unique_node_ptr(val);
-	}
+	// 	return unique_node_ptr(val);
+	// }
 
 	template<typename... Args>
-	unique_node_ptr allocate_unique(Args... args)
+	unique_node_ptr allocate_unique(Args&&... args)
 	{
 		T* val = allocate(std::forward<Args>(args)...);
 

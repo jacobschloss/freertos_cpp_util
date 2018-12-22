@@ -48,7 +48,7 @@ public:
 	}
 
 	template<typename... Args>
-	T* allocate(Args... args)
+	T* allocate(Args&&... args)
 	{
 		T* const val_ptr = get_val();
 
@@ -57,7 +57,7 @@ public:
 			return nullptr;
 		}
 
-		::new(val_ptr) T(std::forward<Args>(args)...);
+		::new(static_cast<void*>(val_ptr)) T(std::forward<Args>(args)...);
 
 		return val_ptr;
 	}
