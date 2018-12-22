@@ -3,6 +3,10 @@ add_library(freertos_cpp_util
 	src/Queue_static.cpp
 	src/Queue_static_pod.cpp
 	
+	src/Semaphore_base.cpp
+	src/BSema_static.cpp
+	src/CSema_static.cpp
+
 	src/Critical_section_isr.cpp
 	src/Critical_section.cpp
 	

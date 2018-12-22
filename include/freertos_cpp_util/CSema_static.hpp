@@ -9,16 +9,16 @@
 
 #include "freertos_cpp_util/Semaphore_base.hpp"
 
-class BSema_static : public Semaphore_base
+class CSema_static : public Semaphore_base
 {
 public:
 
-	BSema_static()
+	CSema_static(const UBaseType_t max_count, const UBaseType_t start_count)
 	{
-		m_sema = xSemaphoreCreateBinaryStatic(&m_sema_buf);
+		m_sema = xSemaphoreCreateCountingStatic(max_count, start_count, &m_sema_buf);
 	}
 
-	~BSema_static() override
+	~CSema_static() override
 	{
 		
 	}

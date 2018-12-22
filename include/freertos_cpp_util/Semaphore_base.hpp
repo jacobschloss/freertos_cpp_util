@@ -9,7 +9,6 @@
 
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "task.h"
 
 class Semaphore_base
 {
@@ -24,6 +23,42 @@ public:
 	{
 		vSemaphoreDelete(m_sema);
 		m_sema = nullptr;
+	}
+
+	bool take()
+	{
+		return pdTRUE == xSemaphoreTake(m_sema, portMAX_DELAY);
+	}
+
+	bool take_from_isr()
+	{
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		const BaseType_t ret = xSemaphoreTakeFromISR(m_sema, &xHigherPriorityTaskWoken);
+		
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+		return pdTRUE == ret;
+	}
+
+	bool give()
+	{
+		return pdTRUE == xSemaphoreGive(m_sema);
+	}
+
+	bool give_from_isr()
+	{
+	
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		const BaseType_t ret = xSemaphoreGiveFromISR(m_sema, &xHigherPriorityTaskWoken);
+
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+		return pdTRUE == ret;
+	}
+
+	UBaseType_t get_count() const
+	{
+		return uxSemaphoreGetCount(m_sema);
 	}
 
 protected:
