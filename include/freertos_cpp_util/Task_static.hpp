@@ -9,8 +9,6 @@
 
 #include "freertos_cpp_util/Task_base.hpp"
 
-#include <cstring>
-
 template<size_t StackDepth>
 class Task_static : public Task_base
 {
