@@ -7,12 +7,8 @@
 
 #pragma once
 
+#include "freertos_cpp_util/Queue_static_pod.hpp"
 #include "freertos_cpp_util/object_pool/Object_pool.hpp"
-
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include <array>
 
 template<typename T, size_t LEN>
 class Queue_static : public Queue_template_base<T>
