@@ -7,10 +7,12 @@
 
 #pragma once
 
+#include "freertos_cpp_util/Non_copyable.hpp"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
-class Critical_section_isr
+class Critical_section_isr : private Non_copyable
 {
 public:
 	Critical_section_isr()
