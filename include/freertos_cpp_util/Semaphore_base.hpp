@@ -47,7 +47,6 @@ public:
 
 	bool give_from_isr()
 	{
-	
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 		const BaseType_t ret = xSemaphoreGiveFromISR(m_sema, &xHigherPriorityTaskWoken);
 
