@@ -59,6 +59,18 @@ public:
 	}
 
 	template<typename... Args>
+	T* try_allocate_isr(Args&&... args)
+	{
+		Node_T* node = nullptr;
+		if(!m_free_nodes.pop_front_isr(&node))
+		{
+			return nullptr;
+		}
+
+		return node->allocate(std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
 	T* allocate(Args&&... args)
 	{
 		return try_allocate_for_ticks(0, std::forward<Args>(args)...);

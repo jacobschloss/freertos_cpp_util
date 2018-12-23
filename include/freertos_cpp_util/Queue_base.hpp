@@ -85,6 +85,10 @@ public:
 		return pop_front(item, pdMS_TO_TICKS(duration_ms.count()));
 	}
 
+	virtual bool pop_front_isr(T* const item) = 0;
+
+	virtual bool pop_front_isr(T* const item, BaseType_t* const pxHigherPriorityTaskWoken) = 0;
+
 	virtual bool push_back(const T& item) = 0;
 
 	virtual bool push_back(const T& item, const TickType_t xTicksToWait) = 0;
@@ -131,6 +135,22 @@ public:
 	bool pop_front(T* const item, const TickType_t xTicksToWait) override
 	{
 		return xQueueReceive(this->m_queue, item, xTicksToWait) == pdTRUE;
+	}
+
+	bool pop_front_isr(T* const item) override
+	{
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		
+		bool ret = pop_front_isr(item, &xHigherPriorityTaskWoken);
+
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+		return ret;
+	}
+
+	bool pop_front_isr(T* const item, BaseType_t* const pxHigherPriorityTaskWoken) override
+	{
+		return pdTRUE == xQueueReceiveFromISR(this->m_queue, item, pxHigherPriorityTaskWoken);
 	}
 
 	bool push_back(const T& item) override
