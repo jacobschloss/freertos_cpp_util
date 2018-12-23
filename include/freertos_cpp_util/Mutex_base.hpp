@@ -7,13 +7,15 @@
 
 #pragma once
 
+#include "freertos_cpp_util/Non_copyable.hpp"
+
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "task.h"
 
 #include <chrono>
 
-class Mutex_base
+class Mutex_base : private Non_copyable
 {
 public:
 
@@ -30,12 +32,15 @@ public:
 
 	void lock()
 	{
-		xSemaphoreTake(m_mutex, portMAX_DELAY);
+		while(!try_lock_for_ticks(portMAX_DELAY))
+		{
+			
+		}
 	}
 
 	bool try_lock()
 	{
-		return pdTRUE == xSemaphoreTake(m_mutex, 0);
+		return try_lock_for_ticks(0);
 	}
 
 	template< class Rep, class Period >

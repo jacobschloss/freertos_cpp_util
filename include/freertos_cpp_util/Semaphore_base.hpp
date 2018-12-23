@@ -7,10 +7,14 @@
 
 #pragma once
 
+#include "freertos_cpp_util/Non_copyable.hpp"
+
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-class Semaphore_base
+#include <chrono>
+
+class Semaphore_base : private Non_copyable
 {
 public:
 
@@ -27,7 +31,24 @@ public:
 
 	bool take()
 	{
-		return pdTRUE == xSemaphoreTake(m_sema, portMAX_DELAY);
+		while(!try_take_for_ticks(portMAX_DELAY))
+		{
+
+		}
+
+		return true;
+	}
+
+	template< class Rep, class Period >
+	bool try_take_for(const std::chrono::duration<Rep,Period>& duration)
+	{
+		std::chrono::milliseconds duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+		return try_take_for_ticks( pdMS_TO_TICKS(duration_ms.count()) );
+	}
+
+	bool try_take_for_ticks(const TickType_t ticks)
+	{
+		return pdTRUE == xSemaphoreTake(m_sema, ticks);
 	}
 
 	bool take_from_isr()
