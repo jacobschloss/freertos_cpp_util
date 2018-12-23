@@ -59,10 +59,14 @@ public:
 		return pdFALSE != ret;
 	}
 
+	void set_name(const char* name)
+	{
+		vQueueAddToRegistry(m_queue, name);
+	}
+
 protected:
 
 	QueueHandle_t m_queue;
-
 };
 
 template <typename T>

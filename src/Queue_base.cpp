@@ -14,6 +14,13 @@ Queue_base::~Queue_base()
 {
 	if(m_queue)
 	{
+		//if we've been named, remove us
+		const char* name = pcQueueGetName(m_queue);
+		if(name)
+		{
+			vQueueUnregisterQueue(m_queue);
+		}
+
 		vQueueDelete(m_queue);
 		m_queue = nullptr;
 	}
