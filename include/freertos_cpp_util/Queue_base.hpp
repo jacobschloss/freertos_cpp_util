@@ -7,13 +7,15 @@
 
 #pragma once
 
+#include "freertos_cpp_util/Non_copyable.hpp"
+
 #include "FreeRTOS.h"
 #include "queue.h"
 
 #include <chrono>
 #include <type_traits>
 
-class Queue_base
+class Queue_base : private Non_copyable
 {
 public:
 
@@ -141,7 +143,7 @@ public:
 	{
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 		
-		bool ret = pop_front_isr(item, &xHigherPriorityTaskWoken);
+		const bool ret = pop_front_isr(item, &xHigherPriorityTaskWoken);
 
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
@@ -177,7 +179,7 @@ public:
 	{
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 		
-		bool ret = push_front_isr(item, &xHigherPriorityTaskWoken);
+		const bool ret = push_front_isr(item, &xHigherPriorityTaskWoken);
 
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
@@ -193,7 +195,7 @@ public:
 	{
 		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 		
-		bool ret = push_back_isr(item, &xHigherPriorityTaskWoken);
+		const bool ret = push_back_isr(item, &xHigherPriorityTaskWoken);
 
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
