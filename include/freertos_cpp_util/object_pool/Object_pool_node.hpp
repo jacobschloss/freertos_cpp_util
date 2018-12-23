@@ -50,6 +50,11 @@ public:
 
 	static Object_pool_node<T>* get_this_from_val_ptr(void* val_ptr)
 	{
+		if(val_ptr == nullptr)
+		{
+			return nullptr;
+		}
+
 		//6.7.2.1-13. A pointer to a structure object, suitably converted, points to its initial member
 		Heap_element_T* ptr = reinterpret_cast<Heap_element_T*>(val_ptr);
 		return &ptr->node;

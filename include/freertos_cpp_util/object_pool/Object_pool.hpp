@@ -122,6 +122,11 @@ public:
 	//node must belong to this pool
 	void deallocate(Node_T* const node) override
 	{
+		if(node == nullptr)
+		{
+			return;
+		}
+		
 		node->deallocate();
 
 		// Object_pool_base<T>* pool = node->get_pool();
@@ -142,6 +147,11 @@ public:
 	//ptr must belong to this pool
 	void deallocate(T* const ptr) override
 	{
+		if(ptr == nullptr)
+		{
+			return;
+		}
+
 		Node_T* node = Node_T::get_this_from_val_ptr(ptr);
 		
 		deallocate(node);
