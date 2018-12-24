@@ -32,7 +32,7 @@ public:
 		{
 			Heap_element_T* const mem_ptr = &m_mem_node_pool[i];
 
-			mem_ptr->node = Node_T(this, reinterpret_cast<T*>(&mem_ptr->val));
+			mem_ptr->node = Node_T(this, reinterpret_cast<T*>( &(mem_ptr->val)) );
 
 			m_free_nodes.push_back(&mem_ptr->node);
 		}
@@ -126,7 +126,7 @@ public:
 		{
 			return;
 		}
-		
+
 		node->deallocate();
 
 		// Object_pool_base<T>* pool = node->get_pool();

@@ -9,7 +9,7 @@
 
 #include "freertos_cpp_util/Non_copyable.hpp"
 
-#include "freertos_cpp_util/object_pool/Object_pool_fwd.hpp"
+#include "freertos_cpp_util/object_pool/Object_pool_node.hpp"
 
 #include <type_traits>
 #include <utility>
