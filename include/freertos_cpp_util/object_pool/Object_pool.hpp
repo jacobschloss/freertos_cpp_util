@@ -59,10 +59,10 @@ public:
 	}
 
 	template<typename... Args>
-	T* try_allocate_isr(Args&&... args)
+	T* try_allocate_isr(BaseType_t* const pxHigherPriorityTaskWoken, Args&&... args)
 	{
 		Node_T* node = nullptr;
-		if(!m_free_nodes.pop_front_isr(&node))
+		if(!m_free_nodes.pop_front_isr(&node, pxHigherPriorityTaskWoken))
 		{
 			return nullptr;
 		}
