@@ -1,5 +1,5 @@
 /**
- * @brief RAII critial section
+ * @brief RAII task scheduler lock
  * @author Jacob Schloss <jacob@schloss.io>
  * @copyright Copyright (c) 2018 Jacob Schloss. All rights reserved.
  * @license Licensed under the 3-Clause BSD license. See License for details
@@ -12,16 +12,21 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-class Critical_section : private Non_copyable
+class Suspend_task_scheduler : private Non_copyable
 {
 public:
-	Critical_section()
+	Suspend_task_scheduler()
 	{
-		taskENTER_CRITICAL();
+		vTaskSuspendAll();
 	}
 
-	~Critical_section()
+	~Suspend_task_scheduler()
 	{
-		taskEXIT_CRITICAL();
+		BaseType_t ret = xTaskResumeAll();
+
+		if(ret == pdFALSE )
+		{
+			taskYIELD();
+		}
 	}
 };

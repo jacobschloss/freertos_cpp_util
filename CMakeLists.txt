@@ -9,6 +9,7 @@ add_library(freertos_cpp_util
 
 	src/Critical_section_isr.cpp
 	src/Critical_section.cpp
+	src/Suspend_task_scheduler.cpp
 	
 	src/Task_base.cpp
 	src/Task_heap.cpp

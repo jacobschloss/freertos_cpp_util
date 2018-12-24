@@ -26,6 +26,15 @@ public:
 
 	virtual void work();
 
+	char* get_name();
+	TaskHandle_t get_handle() const;
+	eTaskState get_state();
+	UBaseType_t get_priority();
+
+	void suspend();
+	void resume();
+	void resume_isr();
+
 protected:
 	TaskHandle_t m_handle;
 };

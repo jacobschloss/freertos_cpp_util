@@ -44,3 +44,36 @@ void Task_base::work()
 		vTaskSuspend(nullptr);
 	}
 }
+
+char* Task_base::get_name()
+{
+	return pcTaskGetName(m_handle);
+}
+TaskHandle_t Task_base::get_handle() const
+{
+	return m_handle;
+}
+eTaskState Task_base::get_state()
+{
+	return eTaskGetState(m_handle);
+}
+UBaseType_t Task_base::get_priority()
+{
+	return uxTaskPriorityGet(m_handle);
+}
+
+void Task_base::suspend()
+{
+	vTaskSuspend(m_handle);
+}
+void Task_base::resume()
+{
+	vTaskResume(m_handle);
+}
+
+void Task_base::resume_isr()
+{
+	const BaseType_t xYieldRequired = xTaskResumeFromISR(m_handle);
+
+	portYIELD_FROM_ISR(xYieldRequired);
+}
