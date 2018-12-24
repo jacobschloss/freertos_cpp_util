@@ -39,6 +39,18 @@ public:
 	virtual void deallocate(T* const ptr) = 0;
 	virtual void deallocate(Node_T* const node) = 0;
 
+	//convinence function, if you don't know or care which pool owns it
+	//will lookup the correct pool to return to
+	//slightly slower than pool direct deallocation
+	static void free(T* const ptr)
+	{
+		Node_T* node = Node_T::get_this_from_val_ptr(ptr);
+
+		Object_pool_base<T>* pool = node->get_pool_ptr();
+
+		pool->deallocate(node);
+	}
+
 protected:
 
 };

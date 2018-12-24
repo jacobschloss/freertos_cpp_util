@@ -76,18 +76,6 @@ public:
 		return try_allocate_for_ticks(0, std::forward<Args>(args)...);
 	}
 
-	//convinence function, if you don't know or care which pool owns it
-	//will lookup the correct pool to return to
-	//slightly slower than pool direct deallocation
-	static void free(T* const ptr)
-	{
-		Node_T* node = Node_T::get_this_from_val_ptr(ptr);
-
-		Object_pool_base<T>* pool = node->get_pool_ptr();
-
-		pool->deallocate(node);
-	}
-
 	class Node_T_deleter
 	{
 	public:
