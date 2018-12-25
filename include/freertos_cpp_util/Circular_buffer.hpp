@@ -29,8 +29,6 @@ public:
 
 protected:
 
-	
-
 }
 
 #include "freertos_cpp_util/Circular_buffer.tcc"

@@ -17,7 +17,7 @@
 template<typename T>
 class FreeRTOS_allocator
 {
-
+public:
 	typedef T value_type;
 	typedef T* pointer;
 	typedef const T* const_pointer;
@@ -101,7 +101,7 @@ class FreeRTOS_allocator
 			}
 
 			//get an aligned poiner
-			p = (static_cast<std::uintptr_t>(raw_p) & (~allignment_mask)) + allignment;
+			p = reinterpret_cast<pointer>( (reinterpret_cast<std::uintptr_t>(raw_p) & (~allignment_mask)) + allignment );
 
 			//stash the original pointer
 			*(reinterpret_cast<void**>(p) - 1) = raw_p;
@@ -136,7 +136,7 @@ class FreeRTOS_allocator
 		else
 		{
 			//wider alignment, we stashed the real heap pointer here
-			pointer start = *(reinterpret_cast<void**>(p) - 1);
+			pointer start = static_cast<pointer>( *(reinterpret_cast<void**>(p) - 1) );
 			vPortFree(start);
 		}
 	}
