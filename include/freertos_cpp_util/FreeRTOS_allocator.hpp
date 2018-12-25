@@ -68,12 +68,14 @@ public:
 		return std::numeric_limits<std::size_t>::max() / sizeof(T);
 	}
 
-	pointer allocate(size_type num, const void* hint = 0)
+	//c++17 style
+	pointer allocate(size_type num)
 	{
-		return allocate(num);
+		return allocate(num, 0);
 	}
 
-	pointer allocate(size_type num)
+	//c++11 style
+	pointer allocate(size_type num, const void* hint = 0)
 	{
 		pointer p = nullptr;
 		if(alignof(T) <= portBYTE_ALIGNMENT)
