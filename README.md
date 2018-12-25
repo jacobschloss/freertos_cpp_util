@@ -6,8 +6,14 @@ Features
  * Wrappers for tasks, forming thread objects
  * Wrappers for queus, POD only
  * Wrappers threading primitives
- * A C++ safe object pool, usable as a simple heap (calls constructors & destructors)
- * Some C++11 features
+ * A C++ safe object pool
+    * usable as a simple heap
+    * calls constructor & destructor
+    * premptable
+    * can block for configurable amount of time
+ * A C++11 style allocator
+    * Supports types with wider alignment than the default portBYTE_ALIGNMENT
+ * Some support for chrono types
  * CMake build script
 
 # License

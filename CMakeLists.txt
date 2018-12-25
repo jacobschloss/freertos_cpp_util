@@ -1,4 +1,9 @@
 add_library(freertos_cpp_util
+
+	src/Byte_stream.cpp
+
+	src/FreeRTOS_allocator.cpp
+
 	src/Queue_base.cpp
 	src/Queue_static.cpp
 	src/Queue_static_pod.cpp
