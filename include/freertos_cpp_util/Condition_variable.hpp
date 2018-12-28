@@ -45,6 +45,7 @@ public:
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
 				//right now it is on the stack of the sleeping thread
 				//this is currently handeled by locking the scheduler while we wake the sleeping tasks
+				//maybe just move this to the heap
 
 				m_task_queue.front<Waiter_node>()->m_bsema.give();
 				m_task_queue.pop_front();
@@ -67,6 +68,7 @@ public:
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
 				//right now it is on the stack of the sleeping thread
 				//this is currently handeled by locking the scheduler while we wake the sleeping tasks
+				//maybe just move this to the heap
 
 				m_task_queue.front<Waiter_node>()->m_bsema.give();
 				m_task_queue.pop_front();
