@@ -9,10 +9,11 @@ Features
  * A C++ safe object pool
     * usable as a simple heap
     * calls constructor & destructor
+    * supports arbitrary alignment requirements (ie, alignas specifier)
     * premptable
     * can block for configurable amount of time
  * A C++11 style allocator
-    * Supports types with wider alignment than the default portBYTE_ALIGNMENT
+    * Supports types with wider alignment than the default portBYTE_ALIGNMENT  (ie, alignas specifier)
  * Some support for chrono types
  * CMake build script
 
