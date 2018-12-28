@@ -18,13 +18,16 @@ add_library(freertos_cpp_util
 	src/Critical_section.cpp
 	src/Suspend_task_scheduler.cpp
 	
+	src/util/Intrusive_slist.cpp
+	src/util/Non_copyable.cpp
+
 	src/Task_base.cpp
 	src/Task_heap.cpp
 	src/Task_static.cpp
 
 	src/Mutex_base.cpp
-	src/Mutex_static.cpp
 	src/Mutex_heap.cpp
+	src/Mutex_static.cpp
 
 	src/object_pool/Object_pool.cpp
 	src/object_pool/Object_pool_base.cpp

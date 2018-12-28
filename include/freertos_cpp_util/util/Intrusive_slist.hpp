@@ -2,12 +2,17 @@
  * @brief Intrusive singly linked list 
  * @author Jacob Schloss <jacob@schloss.io>
  * @copyright Copyright (c) 2018 Jacob Schloss. All rights reserved.
- * @license Licensed under the 3-Clause BSD license. See License for details
+ * @license Licensed under the 3-Clause BSD license. See LICENSE for details
 */
+
+#pragma once
 
 #include "freertos_cpp_util/util/Non_copyable.hpp"
 
-#pragma once
+#include <utility>
+
+//A minimal intrusive singly linked list for OS use
+//Not recommended for general use, since this does not manage memory or have many features
 
 class Intrusive_slist;
 

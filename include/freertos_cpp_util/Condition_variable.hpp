@@ -2,7 +2,7 @@
  * @brief Condition_variable
  * @author Jacob Schloss <jacob@schloss.io>
  * @copyright Copyright (c) 2018 Jacob Schloss. All rights reserved.
- * @license Licensed under the 3-Clause BSD license. See License for details
+ * @license Licensed under the 3-Clause BSD license. See LICENSE for details
 */
 
 #pragma once
@@ -30,6 +30,12 @@ public:
 		m_task_queue_sema.give();
 	}
 
+	///
+	/// Wake one waiting task
+	/// You do not need to own the associated mutex, and in general holding the lock is bad for performance
+	///
+	/// This currently can cause a priority inversion, as the LIFO task queue will not necessarily wake the most important waiter
+	///
 	void notify_one()
 	{
 		{
@@ -53,6 +59,10 @@ public:
 		//we might be preempted now, if preemption is turned on
 	}
 
+	///
+	/// Wake all waiting tasks
+	/// You do not need to own the associated mutex, and in general holding the lock is bad for performance
+	///
 	void notify_all()
 	{
 		{
@@ -78,6 +88,10 @@ public:
 		//we might be preempted now, if preemption is turned on
 	}
 
+	///
+	/// You must hold lock before calling this
+	/// All waiters must lock the same mutex
+	///
 	template< class Mutex >
 	void wait(std::unique_lock<Mutex>& lock)
 	{
@@ -97,6 +111,10 @@ public:
 		lock.lock();
 	}
 
+	///
+	/// You must hold lock before calling this
+	/// All waiters must lock the same mutex
+	///
 	template< class Mutex, class Predicate >
 	void wait(std::unique_lock<Mutex>& lock, Predicate pred)
 	{
@@ -119,6 +137,9 @@ protected:
 		BSema_static m_bsema;
 	};
 	
+	//A LIFO queue of waiting tasks
+	//The node is allocated on the waiter's stack
 	Intrusive_slist m_task_queue;
+	///A binary semaphore that acts a mutex for m_task_queue
 	BSema_static m_task_queue_sema;
 };

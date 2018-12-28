@@ -1,3 +1,9 @@
+/**
+ * @author Jacob Schloss <jacob@schloss.io>
+ * @copyright Copyright (c) 2018 Jacob Schloss. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See License for details
+*/
+
 #include "freertos_cpp_util/Byte_stream.hpp"
 
 size_t Byte_stream::read_some_for_ticks(uint8_t* const buf, const size_t read_max, const TickType_t xTicksToWait)
