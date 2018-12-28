@@ -14,7 +14,7 @@
 #include "freertos_cpp_util/Queue_static_pod.hpp"
 #include "freertos_cpp_util/Suspend_task_scheduler.hpp"
 
-#include "freertos_cpp_util/Intrusive_list.hpp"
+#include "freertos_cpp_util/util/Intrusive_slist.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -60,6 +60,8 @@ public:
 	{
 		{
 			//lets wake all of these before letting them run
+			//this also fixes the priority inversion caused by the lifo, since all the tasks will be runnable once this is over
+			//although priority will be briefly inverted while we mark them all runnable
 			Suspend_task_scheduler sched_suspend;
 
 			m_task_queue_sema.take();
@@ -109,7 +111,7 @@ public:
 
 protected:
 
-	class Waiter_node : public Intrusive_list_fwd_node
+	class Waiter_node : public Intrusive_slist_node
 	{
 	public:
 		Waiter_node()
@@ -120,6 +122,6 @@ protected:
 		BSema_static m_bsema;
 	};
 	
-	Intrusive_list_fwd m_task_queue;
+	Intrusive_slist m_task_queue;
 	BSema_static m_task_queue_sema;
 };
