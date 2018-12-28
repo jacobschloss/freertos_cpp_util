@@ -4,6 +4,8 @@ add_library(freertos_cpp_util
 
 	src/FreeRTOS_allocator.cpp
 
+	src/Condition_variable.cpp
+
 	src/Queue_base.cpp
 	src/Queue_static.cpp
 	src/Queue_static_pod.cpp

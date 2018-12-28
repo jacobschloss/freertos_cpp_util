@@ -11,6 +11,7 @@
 #include "freertos_cpp_util/BSema_static.hpp"
 
 #include <array>
+#include <list>
 #include <chrono>
 #include <mutex>
 
@@ -45,9 +46,16 @@ public:
 	Byte_stream& operator=(const Byte_stream& rhs)
 	{
 		{
-			std::lock_guard<Mutex_static> lock(m_mutex);
+			std::lock_guard<Mutex_static> lock1(m_read_buf_mutex);
+			std::lock_guard<Mutex_static> lock2(rhs.m_read_buf_mutex);
 
-			m_buf = rhs.m_buf;
+			m_read_buf = rhs.m_read_buf;
+		}
+		{
+			std::lock_guard<Mutex_static> lock1(m_write_buf_mutex);
+			std::lock_guard<Mutex_static> lock2(rhs.m_write_buf_mutex);
+
+			m_write_buf = rhs.m_write_buf;
 		}
 
 		return *this;
@@ -79,7 +87,11 @@ public:
 
 protected:
 
-	std::array<uint8_t, 128> m_buf;
+	std::list<uint8_t> m_read_buf;
+	mutable Mutex_static m_read_buf_mutex;
+
+	std::list<uint8_t> m_write_buf;
+	mutable Mutex_static m_write_buf_mutex;
 
 	//when reading, take this to wait for new data
 	//writers will give it
@@ -88,8 +100,5 @@ protected:
 	//when writing take this to wait for free space
 	//readers will give it
 	BSema_static m_read_activity;
-
-	//lock for things that require exclusive access
-	Mutex_static m_mutex;
 
 };
