@@ -1,8 +1,12 @@
 #pragma once
 
+class Intrusive_list_fwd;
+
 class Intrusive_list_fwd_node
 {
 public:
+
+	friend class Intrusive_list_fwd;
 
 	Intrusive_list_fwd_node()
 	{
@@ -40,12 +44,24 @@ public:
 
 	void push_front(Intrusive_list_fwd_node* const node)
 	{
-
+		if(m_head)
+		{
+			node->m_next = m_head;
+		}
+		else
+		{
+			node->m_next = nullptr;
+		}
+		
+		m_head = node;
 	}
 
 	void pop_front()
 	{
-
+		if(m_head)
+		{
+			m_head = m_head->m_next;
+		}
 	}
 
 protected:
