@@ -132,10 +132,9 @@ protected:
 	class Waiter_node : public Intrusive_slist_node
 	{
 	public:
-		Waiter_node()
-		{
+		Waiter_node() = default;
+		~Waiter_node() = default;
 
-		}
 
 		BSema_static m_bsema;
 	};
