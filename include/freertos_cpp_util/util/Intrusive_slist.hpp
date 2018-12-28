@@ -9,8 +9,6 @@
 
 #include "freertos_cpp_util/util/Non_copyable.hpp"
 
-#include <utility>
-
 //A minimal intrusive singly linked list for OS use
 //Not recommended for general use, since this does not manage memory or have many features
 
@@ -36,7 +34,8 @@ public:
 	//permit move
 	Intrusive_slist_node(Intrusive_slist_node&& rhs)
 	{
-		std::swap(m_next, rhs.m_next);
+		m_next = rhs.m_next;
+		rhs.m_next = nullptr;
 	}
 
 	Intrusive_slist_node* next()
@@ -60,6 +59,11 @@ public:
 	}
 
 	~Intrusive_slist() = default;
+
+	//copy & assign are banned
+	//Since the nodes are owned externally, it is probably a bad idea to clone the list.
+	Intrusive_slist(const Intrusive_slist& rhs) = delete;
+	Intrusive_slist& operator=(const Intrusive_slist& rhs) = delete;
 
 	//permit move
 	Intrusive_slist(Intrusive_slist&& rhs)

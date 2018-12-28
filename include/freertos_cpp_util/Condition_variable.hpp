@@ -7,11 +7,12 @@
 
 #pragma once
 
-#include "freertos_cpp_util/Mutex_static.hpp"
 #include "freertos_cpp_util/BSema_static.hpp"
+#include "freertos_cpp_util/Mutex_static.hpp"
 #include "freertos_cpp_util/Suspend_task_scheduler.hpp"
 
 #include "freertos_cpp_util/util/Intrusive_slist.hpp"
+#include "freertos_cpp_util/util/Non_copyable.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -40,6 +41,7 @@ public:
 	{
 		{
 			//lets wake this before letting others run
+			//Currently required to enforce lifetime requirement of Waiter_node
 			Suspend_task_scheduler sched_suspend;
 
 			m_task_queue_sema.take();
@@ -67,6 +69,7 @@ public:
 	{
 		{
 			//lets wake all of these before letting them run
+			//Currently required to enforce lifetime requirement of Waiter_node
 			//this also fixes the priority inversion caused by the lifo, since all the tasks will be runnable once this is over
 			//although priority will be briefly inverted while we mark them all runnable
 			Suspend_task_scheduler sched_suspend;
