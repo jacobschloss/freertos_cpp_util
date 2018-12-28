@@ -8,10 +8,7 @@
 #pragma once
 
 #include "freertos_cpp_util/Mutex_static.hpp"
-#include "freertos_cpp_util/CSema_static.hpp"
 #include "freertos_cpp_util/BSema_static.hpp"
-//#include "freertos_cpp_util/Critical_section.hpp"
-#include "freertos_cpp_util/Queue_static_pod.hpp"
 #include "freertos_cpp_util/Suspend_task_scheduler.hpp"
 
 #include "freertos_cpp_util/util/Intrusive_slist.hpp"

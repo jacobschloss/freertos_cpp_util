@@ -43,6 +43,8 @@ protected:
 	Intrusive_slist_node* m_next;
 };
 
+//in this list, nodes are held on the stack externally
+//lifetime of nodes must be managed by the creator
 class Intrusive_slist : private Non_copyable
 {
 public:
