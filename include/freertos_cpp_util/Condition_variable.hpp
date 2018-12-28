@@ -44,7 +44,7 @@ public:
 			{
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
 				//right now it is on the stack of the sleeping thread
-				//this is currently handeled by locking the scheduler while we wake the sleeping tasks
+				//this is currently handled by locking the scheduler while we wake the sleeping tasks
 				//maybe just move this to the heap
 
 				m_task_queue.front<Waiter_node>()->m_bsema.give();
@@ -53,7 +53,7 @@ public:
 			m_task_queue_sema.give();
 		}
 
-		//we might be pre-empted now, if preemption is turned on
+		//we might be preempted now, if preemption is turned on
 	}
 
 	void notify_all()
@@ -67,7 +67,7 @@ public:
 			{
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
 				//right now it is on the stack of the sleeping thread
-				//this is currently handeled by locking the scheduler while we wake the sleeping tasks
+				//this is currently handled by locking the scheduler while we wake the sleeping tasks
 				//maybe just move this to the heap
 
 				m_task_queue.front<Waiter_node>()->m_bsema.give();
@@ -76,7 +76,7 @@ public:
 			m_task_queue_sema.give();
 		}
 
-		//we might be pre-empted now, if preemption is turned on
+		//we might be preempted now, if preemption is turned on
 	}
 
 	template< class Mutex >
