@@ -39,12 +39,18 @@ public:
 	///
 	void notify_one()
 	{
+		while(true)
 		{
 			//lets wake this before letting others run
 			//Currently required to enforce lifetime requirement of Waiter_node
 			Suspend_task_scheduler sched_suspend;
 
-			m_task_queue_sema.take();
+			//we can't block while the scheduler is off
+			if(!m_task_queue_sema.try_take())
+			{
+				continue;
+			}
+
 			if(!m_task_queue.empty())
 			{
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
@@ -56,6 +62,7 @@ public:
 				m_task_queue.pop_front();
 			}
 			m_task_queue_sema.give();
+			break;
 		}
 
 		//we might be preempted now, if preemption is turned on
@@ -67,6 +74,7 @@ public:
 	///
 	void notify_all()
 	{
+		while(true)
 		{
 			//lets wake all of these before letting them run
 			//Currently required to enforce lifetime requirement of Waiter_node
@@ -74,7 +82,12 @@ public:
 			//although priority will be briefly inverted while we mark them all runnable
 			Suspend_task_scheduler sched_suspend;
 
-			m_task_queue_sema.take();
+			//we can't block while the scheduler is off
+			if(!m_task_queue_sema.try_take())
+			{
+				continue;
+			}
+
 			while(!m_task_queue.empty())
 			{
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
@@ -86,6 +99,7 @@ public:
 				m_task_queue.pop_front();
 			}
 			m_task_queue_sema.give();
+			break;
 		}
 
 		//we might be preempted now, if preemption is turned on
@@ -98,8 +112,6 @@ public:
 	template< class Mutex >
 	void wait(std::unique_lock<Mutex>& lock)
 	{
-		TaskHandle_t curr_task_handle = xTaskGetCurrentTaskHandle();
-
 		//add us to a lifo queue
 		Waiter_node node;
 		m_task_queue_sema.take();

@@ -39,6 +39,11 @@ public:
 		return true;
 	}
 
+	bool try_take()
+	{
+		return try_take_for_ticks(0);
+	}
+
 	template< class Rep, class Period >
 	bool try_take_for(const std::chrono::duration<Rep,Period>& duration)
 	{
