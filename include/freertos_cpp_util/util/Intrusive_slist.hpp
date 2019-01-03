@@ -9,6 +9,8 @@
 
 #include "freertos_cpp_util/util/Non_copyable.hpp"
 
+#include <type_traits>
+
 //A minimal intrusive singly linked list for OS use
 //Not recommended for general use, since this does not manage memory or have many features
 
@@ -39,6 +41,11 @@ public:
 	}
 
 	Intrusive_slist_node* next()
+	{
+		return m_next;
+	}
+
+	const Intrusive_slist_node* next() const
 	{
 		return m_next;
 	}
@@ -75,7 +82,17 @@ public:
 	template<typename T>
 	T* front()
 	{
+		static_assert(std::is_base_of<Intrusive_slist_node, T>::value);
+
 		return static_cast<T*>(m_head);
+	}
+
+	template<typename T>
+	const T* front() const
+	{
+		static_assert(std::is_base_of<Intrusive_slist_node, T>::value);
+		
+		return static_cast<const T*>(m_head);
 	}
 
 	bool empty() const

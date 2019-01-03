@@ -18,6 +18,7 @@ add_library(freertos_cpp_util
 	src/Critical_section.cpp
 	src/Suspend_task_scheduler.cpp
 	
+	src/util/Intrusive_list.cpp
 	src/util/Intrusive_slist.cpp
 	src/util/Non_copyable.cpp
 
