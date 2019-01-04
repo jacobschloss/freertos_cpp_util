@@ -27,10 +27,14 @@ Features
     * Scoped ISR disable, scheduler disable
  * CMake build script
 
-# License
+## Copyright
+
+Copyright (c) 2018 Jacob Schloss
+
+## License
 
 Licensed under the terms of the 3-Clause BSD license. See LICENSE for details.
 
-# Copyright
+## Contributing
 
-Copyright (c) 2018 Jacob Schloss
+Bug reports and features requests welcome. I'm not sure how to handle code contributions at the moment - I may require a contributor agreement.
