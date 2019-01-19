@@ -217,7 +217,7 @@ public:
 			xTaskCheckForTimeOut(&timeout, &timeout_ticks_left);
 
 			//wait for timeout or notification
-			cv_status status = wait_for_ticks(lock, timeout_ticks_left);
+			const cv_status status = wait_for_ticks(lock, timeout_ticks_left);
 
 			//if we timed out, don't keep spinning
 			if(status == cv_status::timeout)
