@@ -45,12 +45,14 @@ public:
 			//Currently required to enforce lifetime requirement of Waiter_node
 			Suspend_task_scheduler sched_suspend;
 
+			//lock the task list
 			//we can't block while the scheduler is off
 			if(!m_task_queue_sema.try_take())
 			{
 				continue;
 			}
 
+			//the list may be empty if there are no waiters, or if they timed out and self woke
 			if(!m_task_queue.empty())
 			{
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
@@ -82,12 +84,14 @@ public:
 			//although priority will be briefly inverted while we mark them all runnable
 			Suspend_task_scheduler sched_suspend;
 
+			//lock the task list
 			//we can't block while the scheduler is off
 			if(!m_task_queue_sema.try_take())
 			{
 				continue;
 			}
 
+			//the list may be empty if there are no waiters, or if they timed out and self woke
 			while(!m_task_queue.empty())
 			{
 				//we need to ensure the lifetime of Waiter_node is long enough to pop it...
@@ -139,6 +143,61 @@ public:
 		}
 	}
 
+	enum class cv_status
+	{
+		no_timeout,
+		timeout
+	};
+
+	///
+	/// You must hold lock before calling this
+	/// All waiters must lock the same mutex
+	///
+	template< class Mutex >
+	cv_status wait_for_ticks(std::unique_lock<Mutex>& lock, const TickType_t ticks)
+	{
+		//add us to a lifo queue
+		Waiter_node node;
+		m_task_queue_sema.take();
+		m_task_queue.push_front(&node);
+		m_task_queue_sema.give();
+
+		//unlock lock, blocks the thread
+		lock.unlock();
+		const bool got_sema = node.m_bsema.try_take_for_ticks(ticks);
+
+		//false if we didn't get notified, and instead timed out
+		if(!got_sema)
+		{
+			//we timed out, lock the list and remove us if we are still there
+			//if notify was called between us waking and getting here, we may not be in the list anymore.
+			m_task_queue_sema.take();
+			m_task_queue.erase(&node);
+			m_task_queue_sema.give();
+
+			lock.lock();
+			return cv_status::timeout;
+		}
+
+		//we are awake again, the notifier removed us from the task queue list
+		lock.lock();
+
+		return cv_status::no_timeout;
+	}
+
+	///
+	/// You must hold lock before calling this
+	/// All waiters must lock the same mutex
+	///
+	template< class Mutex, class Rep, class Period >
+	cv_status wait_for(std::unique_lock<Mutex>& lock, 
+		const std::chrono::duration<Rep, Period>& rel_time)
+	{
+		const TickType_t timeout_ticks = std::chrono::duration_cast<std::chrono::milliseconds>(rel_time).count();
+
+		return wait_for_ticks(lock, timeout_ticks);
+	}
+
 	///
 	/// You must hold lock before calling this
 	/// All waiters must lock the same mutex
@@ -154,34 +213,20 @@ public:
 
 		while(!pred())
 		{
-			//add us to a lifo queue
-			Waiter_node node;
-			m_task_queue_sema.take();
-			m_task_queue.push_front(&node);
-			m_task_queue_sema.give();
-
 			//update waiting time left
 			xTaskCheckForTimeOut(&timeout, &timeout_ticks_left);
 
-			//unlock lock, blocks the thread
-			lock.unlock();
-			const bool got_sema = node.m_bsema.try_take_for_ticks(timeout_ticks_left);
+			//wait for timeout or notification
+			cv_status status = wait_for_ticks(lock, timeout_ticks_left);
 
-			//false if we didn't get notified, and instead timed out
-			if(!got_sema)
+			//if we timed out, don't keep spinning
+			if(status == cv_status::timeout)
 			{
-				//we timed out, lock the list and remove us if we are still there
-				m_task_queue_sema.take();
-				m_task_queue.erase(&node);
-				m_task_queue_sema.give();
-
 				//one last try, maybe we got lucky and the predicate is true now
-				lock.lock();
 				return pred();
 			}
 
-			//we are awake again
-			lock.lock();
+			//otherwise no timeout, so spin around and check pred() and sleep again
 		}
 
 		return true;
