@@ -122,6 +122,31 @@ public:
 		}
 	}
 
+	bool erase(Intrusive_slist_node* const node)
+	{
+		Intrusive_slist_node* prev = nullptr;
+		Intrusive_slist_node* curr = m_head;
+
+		while(curr)
+		{
+			if(curr == node)
+			{
+				if(prev)
+				{
+					prev->m_next = curr->m_next;
+				}
+
+				node->m_next = nullptr;
+				return true;
+			}
+
+			prev = curr;
+			curr = curr->m_next;
+		}
+
+		return false;
+	}
+
 protected:
 	Intrusive_slist_node* m_head;
 };

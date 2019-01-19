@@ -139,6 +139,54 @@ public:
 		}
 	}
 
+	///
+	/// You must hold lock before calling this
+	/// All waiters must lock the same mutex
+	///
+	template< class Mutex, class Rep, class Period, class Predicate >
+	bool wait_for(std::unique_lock<Mutex>& lock, 
+		const std::chrono::duration<Rep, Period>& rel_time,
+		Predicate pred)
+	{
+		TimeOut_t timeout;
+		vTaskSetTimeOutState(&timeout);
+		TickType_t timeout_ticks_left = std::chrono::duration_cast<std::chrono::milliseconds>(rel_time).count();
+
+		while(!pred())
+		{
+			//add us to a lifo queue
+			Waiter_node node;
+			m_task_queue_sema.take();
+			m_task_queue.push_front(&node);
+			m_task_queue_sema.give();
+
+			//update waiting time left
+			xTaskCheckForTimeOut(&timeout, &timeout_ticks_left);
+
+			//unlock lock, blocks the thread
+			lock.unlock();
+			const bool got_sema = node.m_bsema.try_take_for_ticks(timeout_ticks_left);
+
+			//false if we didn't get notified, and instead timed out
+			if(!got_sema)
+			{
+				//we timed out, lock the list and remove us if we are still there
+				m_task_queue_sema.take();
+				m_task_queue.erase(&node);
+				m_task_queue_sema.give();
+
+				//one last try, maybe we got lucky and the predicate is true now
+				lock.lock();
+				return pred();
+			}
+
+			//we are awake again
+			lock.lock();
+		}
+
+		return true;
+	}
+
 protected:
 
 	class Waiter_node : public Intrusive_slist_node
