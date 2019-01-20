@@ -8,7 +8,6 @@
 #pragma once
 
 #include "freertos_cpp_util/BSema_static.hpp"
-#include "freertos_cpp_util/Mutex_static.hpp"
 #include "freertos_cpp_util/Suspend_task_scheduler.hpp"
 
 #include "freertos_cpp_util/util/Intrusive_slist.hpp"
@@ -166,6 +165,10 @@ public:
 		lock.unlock();
 		const bool got_sema = node.m_bsema.try_take_for_ticks(ticks);
 
+		//default no timeout
+		cv_status ret = cv_status::no_timeout;
+
+		//true if we were notified
 		//false if we didn't get notified, and instead timed out
 		if(!got_sema)
 		{
@@ -175,14 +178,13 @@ public:
 			m_task_queue.erase(&node);
 			m_task_queue_sema.give();
 
-			lock.lock();
-			return cv_status::timeout;
+			ret = cv_status::timeout;
 		}
 
-		//we are awake again, the notifier removed us from the task queue list
+		//we are awake again, if no timeout the notifier removed us from the task queue list
 		lock.lock();
 
-		return cv_status::no_timeout;
+		return ret;
 	}
 
 	///
