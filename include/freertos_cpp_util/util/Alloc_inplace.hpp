@@ -7,7 +7,7 @@
 ///
 /// An allocator that is only useful for calling constructors for in-place construction
 /// No memory is actually allocated
-/// This is really just a wrapper for placement new, but allows for allocation semantics
+/// This is really just a wrapper for placement new, but allows for allocation semantics with constructor forwarding
 ///
 template<class T>
 struct Alloc_inplace
