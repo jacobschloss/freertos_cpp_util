@@ -87,6 +87,11 @@ public:
 		return uxSemaphoreGetCount(m_sema);
 	}
 
+	SemaphoreHandle_t get_handle()
+	{
+		return m_sema;
+	}
+
 protected:
 
 	SemaphoreHandle_t m_sema;

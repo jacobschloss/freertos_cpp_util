@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <iterator>
 
 //An intrusive doubly linked list for general use
 //heap allocated
@@ -74,6 +75,41 @@ protected:
 class Intrusive_list : private Non_copyable
 {
 public:
+
+	template<typename T>
+	class Intrusive_list_iterator : public std::iterator<
+		std::bidirectional_iterator_tag,
+		T,
+		ptrdiff_t,
+		T*,
+		T&>
+	{
+	public:
+
+		typedef iterator_traits<T> traits_type;
+
+		Intrusive_list_iterator<T>::reference operator++()
+		{
+			return *this;
+		}
+		Intrusive_list_iterator<T>& operator--()
+		{
+			return *this;
+		}
+	};
+
+	template<typename T>
+	class iterator : public Intrusive_list_iterator<T>
+	{
+
+	};
+
+	template<typename T>
+	class const_iterator : public Intrusive_list_iterator<const T>
+	{
+
+	};
+
 
 	Intrusive_list()
 	{
