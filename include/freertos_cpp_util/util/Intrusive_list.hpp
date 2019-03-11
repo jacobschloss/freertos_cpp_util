@@ -45,6 +45,8 @@ public:
 		rhs.m_next = nullptr;
 	}
 
+	friend void swap(Intrusive_list_node& lhs, Intrusive_list_node& rhs);
+
 	Intrusive_list_node* prev()
 	{
 		return m_prev;
@@ -77,37 +79,85 @@ class Intrusive_list : private Non_copyable
 public:
 
 	template<typename T>
-	class Intrusive_list_iterator : public std::iterator<
-		std::bidirectional_iterator_tag,
-		T,
-		ptrdiff_t,
-		T*,
-		T&>
+	class Intrusive_list_iterator : public std::iterator<std::bidirectional_iterator_tag, T>
 	{
 	public:
 
-		typedef iterator_traits<T> traits_type;
+		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
 
-		Intrusive_list_iterator<T>::reference operator++()
+		using base = std::iterator<std::bidirectional_iterator_tag, T>;
+		using typename base::iterator_category;
+		using typename base::value_type;
+		using typename base::difference_type;
+		using typename base::pointer;
+		using typename base::reference;
+
+		Intrusive_list_iterator(pointer x)
 		{
+			m_curr = x;
+		}
+
+		reference operator++()
+		{
+			m_curr = m_curr->next();
 			return *this;
 		}
-		Intrusive_list_iterator<T>& operator--()
+		reference operator--()
 		{
+			m_curr = m_curr->prev();
 			return *this;
 		}
+
+		reference operator++(int)
+		{
+			value_type tmp(*this);
+			operator++();
+			return tmp;
+		}
+		reference operator--(int)
+		{
+			value_type tmp(*this);
+			operator--();
+			return tmp;
+		}
+
+		bool operator==(const reference rhs) const
+		{
+			return m_curr == rhs.m_curr;
+		}
+		bool operator!=(const reference rhs) const
+		{
+			return m_curr != rhs.m_curr;
+		}
+
+		reference operator*()
+		{
+			return *m_curr;
+		}
+	protected:
+		pointer m_curr;
 	};
 
 	template<typename T>
 	class iterator : public Intrusive_list_iterator<T>
 	{
-
+		using base = Intrusive_list_iterator<T>;
+		using typename base::iterator_category;
+		using typename base::value_type;
+		using typename base::difference_type;
+		using typename base::pointer;
+		using typename base::reference;
 	};
 
 	template<typename T>
 	class const_iterator : public Intrusive_list_iterator<const T>
 	{
-
+		using base = Intrusive_list_iterator<const T>;
+		using typename base::iterator_category;
+		using typename base::value_type;
+		using typename base::difference_type;
+		using typename base::pointer;
+		using typename base::reference;
 	};
 
 
@@ -163,6 +213,30 @@ public:
 		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
 
 		return static_cast<const T*>(m_tail);
+	}
+
+	template<typename T>
+	iterator<T> begin()
+	{
+		return iterator<T>(m_head);
+	}
+
+	template<typename T>
+	iterator<T> end()
+	{
+		return iterator<T>(nullptr);
+	}
+
+	template<typename T>
+	const_iterator<T> cbegin()
+	{
+		return const_iterator<T>(m_head);
+	}
+
+	template<typename T>
+	const_iterator<T> cend()
+	{
+		return const_iterator<T>(nullptr);
 	}
 
 	bool empty() const
