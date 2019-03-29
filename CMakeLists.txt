@@ -4,6 +4,8 @@ add_library(freertos_cpp_util
 
 	src/FreeRTOS_allocator.cpp
 
+	src/Call_once.cpp
+
 	src/Condition_variable.cpp
 
 	src/Queue_base.cpp
