@@ -31,6 +31,7 @@ add_library(freertos_cpp_util
 	src/Mutex_base.cpp
 	src/Mutex_heap.cpp
 	src/Mutex_static.cpp
+	src/Mutex_static_recursive.cpp
 
 	src/object_pool/Object_pool.cpp
 	src/object_pool/Object_pool_base.cpp
