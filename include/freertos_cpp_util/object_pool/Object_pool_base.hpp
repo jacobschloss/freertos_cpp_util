@@ -39,6 +39,9 @@ public:
 	virtual void deallocate(T* const ptr) = 0;
 	virtual void deallocate(Node_T* const node) = 0;
 
+	virtual void deallocate_isr(T* const ptr) = 0;
+	virtual void deallocate_isr(Node_T* const node) = 0;
+
 	//convinence function, if you don't know or care which pool owns it
 	//will lookup the correct pool to return to
 	//slightly slower than pool direct deallocation

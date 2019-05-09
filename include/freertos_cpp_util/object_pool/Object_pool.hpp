@@ -145,6 +145,45 @@ public:
 		deallocate(node);
 	}
 
+	//the "best" deallocator
+	//node must belong to this pool
+	void deallocate_isr(Node_T* const node) override
+	{
+		if(node == nullptr)
+		{
+			return;
+		}
+
+		node->deallocate();
+
+		// Object_pool_base<T>* pool = node->get_pool();
+		// if(pool != this)
+		// {
+		// 	//you tried to delete a foreign node
+		// 	//that is bad
+		// }
+
+		if(!m_free_nodes.push_front_isr(node))
+		{
+			//this should never fail
+			//very bad if this fails
+		}
+	}
+
+	//look up the node based on the ptr
+	//ptr must belong to this pool
+	void deallocate_isr(T* const ptr) override
+	{
+		if(ptr == nullptr)
+		{
+			return;
+		}
+
+		Node_T* node = Node_T::get_this_from_val_ptr(ptr);
+		
+		deallocate_isr(node);
+	}
+
 protected:
 
 	//heap element: node and aligned storage
