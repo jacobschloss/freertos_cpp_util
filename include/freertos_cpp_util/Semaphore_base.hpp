@@ -82,6 +82,13 @@ public:
 		return pdTRUE == ret;
 	}
 
+	bool give_from_isr(BaseType_t* const pxHigherPriorityTaskWoken)
+	{
+		const BaseType_t ret = xSemaphoreGiveFromISR(m_sema, pxHigherPriorityTaskWoken);
+
+		return pdTRUE == ret;
+	}
+
 	UBaseType_t get_count() const
 	{
 		return uxSemaphoreGetCount(m_sema);
