@@ -10,7 +10,7 @@
 
 #include <atomic>
 #include <mutex>
-#include <version>
+// #include <version>
 
 class Once_flag;
 
@@ -38,12 +38,12 @@ void call_once(Once_flag& flag, Callable&& f, Args&&... args)
 		
 		if(!flag.m_flag.load())
 		{
-			#if defined(__cpp_lib_invoke) && (__cpp_lib_invoke >= 201411L)
-				std::invoke(f, std::forward<Args>(args)...);
-			#else
+			// #if defined(__cpp_lib_invoke) && (__cpp_lib_invoke >= 201411L)
+				// std::invoke(f, std::forward<Args>(args)...);
+			// #else
 				auto func = std::bind(f, std::forward<Args>(args)...);
 				func();
-			#endif
+			// #endif
 
 			flag.m_flag.store(true);	
 		}
