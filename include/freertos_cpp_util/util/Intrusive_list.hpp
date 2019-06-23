@@ -13,7 +13,7 @@
 #include <type_traits>
 
 //An intrusive doubly linked list for general use
-//heap allocated
+//Nodes can be allocated wherever, for OS use they are generally on a thread's stack
 
 class Intrusive_list;
 
@@ -49,7 +49,7 @@ public:
 		return m_prev;
 	}
 
-	const Intrusive_list_node* prev() const
+	Intrusive_list_node const * prev() const
 	{
 		return m_prev;
 	}
@@ -59,9 +59,41 @@ public:
 		return m_next;
 	}
 
-	const Intrusive_list_node* next() const
+	Intrusive_list_node const * next() const
 	{
 		return m_next;
+	}
+
+	template<typename T>
+	T* prev()
+	{
+		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
+
+		return static_cast<T*>(m_prev);
+	}
+
+	template<typename T>
+	T const * prev() const
+	{
+		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
+
+		return static_cast<const T*>(m_prev);
+	}
+
+	template<typename T>
+	T* next()
+	{
+		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
+
+		return static_cast<T*>(m_next);
+	}
+
+	template<typename T>
+	T const * next() const 
+	{
+		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
+
+		return static_cast<const T*>(m_next);
 	}
 
 protected:
@@ -106,7 +138,7 @@ public:
 	}
 
 	template<typename T>
-	const T* front() const
+	T const * front() const
 	{
 		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
 
@@ -122,7 +154,7 @@ public:
 	}
 
 	template<typename T>
-	const T* back() const 
+	T const * back() const 
 	{
 		static_assert(std::is_base_of<Intrusive_list_node, T>::value);
 
@@ -154,6 +186,7 @@ public:
 			node->m_next = m_head;
 			node->m_prev = nullptr;
 
+			m_head->m_prev = node;
 			m_head = node;
 		}
 		else
@@ -173,6 +206,7 @@ public:
 			node->m_next = nullptr;
 			node->m_prev = m_tail;
 
+			m_tail->m_next = node;
 			m_tail = node;
 		}
 		else
