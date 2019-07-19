@@ -10,8 +10,8 @@
 #include "freertos_cpp_util/BSema_static.hpp"
 #include "freertos_cpp_util/Suspend_task_scheduler.hpp"
 
-#include "freertos_cpp_util/util/Intrusive_slist.hpp"
-#include "freertos_cpp_util/util/Non_copyable.hpp"
+#include "common_util/Intrusive_slist.hpp"
+#include "common_util/Non_copyable.hpp"
 
 #include <atomic>
 #include <mutex>

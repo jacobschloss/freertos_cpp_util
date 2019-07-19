@@ -20,10 +20,6 @@ add_library(freertos_cpp_util
 	src/Critical_section.cpp
 	src/Suspend_task_scheduler.cpp
 	
-	src/util/Intrusive_list.cpp
-	src/util/Intrusive_slist.cpp
-	#src/util/Intrusive_binary_heap.cpp
-	src/util/Non_copyable.cpp
 	src/util/Alloc_inplace.cpp
 
 	src/Task_base.cpp

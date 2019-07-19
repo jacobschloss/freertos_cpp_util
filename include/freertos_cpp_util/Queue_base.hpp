@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "freertos_cpp_util/util/Non_copyable.hpp"
+#include "common_util/Non_copyable.hpp"
 
 #include "FreeRTOS.h"
 #include "queue.h"

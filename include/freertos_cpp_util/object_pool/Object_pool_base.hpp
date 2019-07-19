@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "freertos_cpp_util/util/Non_copyable.hpp"
-
 #include "freertos_cpp_util/object_pool/Object_pool_node.hpp"
+
+#include "common_util/Non_copyable.hpp"
 
 #include <type_traits>
 #include <utility>
