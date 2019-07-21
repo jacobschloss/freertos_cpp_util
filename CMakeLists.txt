@@ -42,5 +42,6 @@ target_include_directories(freertos_cpp_util PUBLIC
 )
 
 target_link_libraries(freertos_cpp_util
+	common_util
 	freertos_v10
 )
