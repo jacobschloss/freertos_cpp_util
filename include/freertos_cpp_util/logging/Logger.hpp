@@ -22,6 +22,16 @@ class Logger
 {
 public:
 
+	Logger()
+	{
+		m_sink = nullptr;
+	}
+
+	void set_sink(Log_sink_base* const sink)
+	{
+		m_sink = sink;
+	}
+
 	bool log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...);
 
 	void process_one();
