@@ -19,6 +19,11 @@ void call_once(Once_flag& flag, Callable&& f, Args&&... args);
 
 class Once_flag
 {
+	Once_flag() : m_flag(false)
+	{
+
+	}
+
 	protected:
 
 	template<class Callable, class... Args>
