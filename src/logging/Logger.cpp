@@ -128,9 +128,10 @@ void Logger::process_one()
 	if(m_overflow)
 	{
 		m_overflow = false;
-		Pool_type::unique_node_ptr overflow_log_element = m_log_pool.try_allocate_for_ticks_unique(portMAX_DELAY);
-		overflow_log_element->assign("\r\nlog storage overflowed\r\n");
-		m_sink->handle_log(overflow_log_element.get());
+
+		String_type overflow_log_element;
+		overflow_log_element.assign("\r\nlog storage overflowed\r\n");
+		m_sink->handle_log(&overflow_log_element);
 	}
 
 	if(m_sink)
