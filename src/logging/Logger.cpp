@@ -62,15 +62,11 @@ const char* Logger::LOG_SEVERITY_to_str(const LOG_SEVERITY level)
 bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...)
 {
 	//get a log buffer or fail
-	Pool_type::unique_node_ptr log_element;
+	Pool_type::unique_node_ptr log_element = m_log_pool.allocate_unique();
+	if(!log_element)
 	{
-		String_type* log_element_raw = m_log_pool.allocate();
-		if(!log_element_raw)
-		{
-			return false;
-		}
-
-		log_element.reset(log_element_raw);
+		m_overflow = true;
+		return false;
 	}
 
 	//cook the string
@@ -127,6 +123,14 @@ void Logger::process_one()
 		}
 
 		log_element.reset(log_element_raw);
+	}
+
+	if(m_overflow)
+	{
+		m_overflow = false;
+		Pool_type::unique_node_ptr overflow_log_element = m_log_pool.try_allocate_for_ticks_unique(portMAX_DELAY);
+		overflow_log_element->assign("\r\nlog storage overflowed\r\n");
+		m_sink->handle_log(overflow_log_element.get());
 	}
 
 	if(m_sink)

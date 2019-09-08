@@ -13,6 +13,8 @@
 #include "freertos_cpp_util/logging/Logger_types.hpp"
 #include "freertos_cpp_util/logging/Log_sink_base.hpp"
 
+#include <atomic>
+
 namespace freertos_util
 {
 namespace logging
@@ -22,7 +24,7 @@ class Logger
 {
 public:
 
-	Logger()
+	Logger() : m_overflow(false)
 	{
 		m_sink = nullptr;
 	}
@@ -49,6 +51,8 @@ protected:
 	Queue_static_pod<String_type*, NUM_RECORDS> m_log_buffer;
 
 	Log_sink_base* m_sink;
+
+	std::atomic<bool> m_overflow;
 };
 
 }
