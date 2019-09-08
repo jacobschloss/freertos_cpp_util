@@ -124,7 +124,7 @@ bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, char* ms
 
 	Time_str time_str;
 	{
-		const TickType_t tick_count = xTaskGetTickCount();
+		const TickType_t tick_count = xTaskGetTickCountFromISR();
 		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
 		if(!get_time_str(tick_count, &time_str))
 		{
