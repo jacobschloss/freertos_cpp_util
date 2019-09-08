@@ -92,19 +92,63 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 		return false;
 	}
 	
-	log_element->append("[");
+	log_element->push_back('[');
 	log_element->append(time_str);
-	log_element->append("]");
-	log_element->append("[");
+	log_element->push_back(']');
+	log_element->push_back('[');
 	log_element->append(LOG_SEVERITY_to_str(level));
-	log_element->append("][");
+	log_element->push_back(']');
+	log_element->push_back('[');
 	log_element->append(module_name);
-	log_element->append("]");
+	log_element->push_back(']');
 	log_element->append(msg_buf.data(), num_to_print);
 	log_element->append("\r\n");
 	
 	//queue for later handling
 	m_log_buffer.push_back(log_element.release());
+
+	return true;
+}
+
+bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, char* msg)
+{
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	//get a log buffer or fail
+	Pool_type::isr_unique_node_ptr log_element = m_log_pool.allocate_unique_isr(&xHigherPriorityTaskWoken);
+	if(!log_element)
+	{
+		m_overflow = true;
+		return false;
+	}
+
+	Time_str time_str;
+	{
+		const TickType_t tick_count = xTaskGetTickCount();
+		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
+		if(!get_time_str(tick_count, &time_str))
+		{
+			return false;
+		}
+	}
+	
+	log_element->push_back('[');
+	log_element->append(time_str);
+	log_element->push_back(']');
+	log_element->push_back('[');
+	log_element->append(LOG_SEVERITY_to_str(level));
+	log_element->push_back(']');
+	log_element->push_back('[');
+	log_element->append(module_name);
+	log_element->push_back(']');
+	log_element->append(msg);
+	log_element->append("\r\n");
+	
+	//queue for later handling
+	m_log_buffer.push_back_isr(log_element.release(), &xHigherPriorityTaskWoken);
+
+	//run the scheduler if needed
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
 	return true;
 }

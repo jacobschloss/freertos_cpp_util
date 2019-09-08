@@ -35,6 +35,7 @@ public:
 	}
 
 	bool log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...);
+	bool log_isr(const LOG_SEVERITY level, const char* module_name, char* msg);
 
 	void process_one();
 

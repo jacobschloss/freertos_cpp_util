@@ -87,8 +87,20 @@ public:
 			pool->deallocate(node);
 		}
 	};
-
 	typedef std::unique_ptr<T, Node_T_deleter> unique_node_ptr;
+
+	class Node_T_deleter_isr
+	{
+	public:
+		void operator()(T* ptr) const
+		{
+			Node_T* node = Node_T::get_this_from_val_ptr(ptr);
+			Object_pool_base<T>* pool = node->get_pool_ptr();
+
+			pool->deallocate_isr(node);
+		}
+	};
+	typedef std::unique_ptr<T, Node_T_deleter_isr> isr_unique_node_ptr;
 
 	template<typename... Args>
 	unique_node_ptr try_allocate_for_ticks_unique(const TickType_t xTicksToWait, Args&&... args)
@@ -104,6 +116,14 @@ public:
 		T* val = allocate(std::forward<Args>(args)...);
 
 		return unique_node_ptr(val);
+	}
+
+	template<typename... Args>
+	isr_unique_node_ptr allocate_unique_isr(BaseType_t* const pxHigherPriorityTaskWoken, Args&&... args)
+	{
+		T* val = try_allocate_isr(pxHigherPriorityTaskWoken, std::forward<Args>(args)...);
+
+		return isr_unique_node_ptr(val);
 	}
 
 	//the "best" deallocator
