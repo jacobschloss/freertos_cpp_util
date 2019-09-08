@@ -113,28 +113,25 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 	return true;
 }
 
-void Logger::process()
+void Logger::process_one()
 {
-	for(;;)
+	//RAII deallocation
+	Pool_type::unique_node_ptr log_element;
+
+	//wait for log element
 	{
-		//RAII deallocation
-		Pool_type::unique_node_ptr log_element;
-
-		//wait for log element
+		String_type* log_element_raw = nullptr;
+		if(!m_log_buffer.pop_front(&log_element_raw, portMAX_DELAY))
 		{
-			String_type* log_element_raw = nullptr;
-			if(!m_log_buffer.pop_front(&log_element_raw, portMAX_DELAY))
-			{
-				continue;
-			}
-
-			log_element.reset(log_element_raw);
+			return;
 		}
 
-		if(m_sink)
-		{
-			m_sink->handle_log(log_element.get());
-		}
+		log_element.reset(log_element_raw);
+	}
+
+	if(m_sink)
+	{
+		m_sink->handle_log(log_element.get());
 	}
 }
 

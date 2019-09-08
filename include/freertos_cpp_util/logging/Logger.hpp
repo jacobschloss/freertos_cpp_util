@@ -24,7 +24,7 @@ public:
 
 	bool log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...);
 
-	void process();
+	void process_one();
 
 protected:
 
