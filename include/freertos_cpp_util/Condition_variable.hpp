@@ -13,7 +13,6 @@
 #include "common_util/Intrusive_slist.hpp"
 #include "common_util/Non_copyable.hpp"
 
-#include <atomic>
 #include <mutex>
 
 //similar to
