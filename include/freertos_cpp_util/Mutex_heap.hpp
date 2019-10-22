@@ -18,7 +18,7 @@ public:
 	}
 	~Mutex_heap() override
 	{
-
+		vSemaphoreDelete(m_mutex);
 	}
 protected:
 

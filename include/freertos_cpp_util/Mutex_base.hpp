@@ -26,7 +26,6 @@ public:
 
 	virtual ~Mutex_base()
 	{
-		vSemaphoreDelete(m_mutex);
 		m_mutex = nullptr;
 	}
 
@@ -50,12 +49,12 @@ public:
 		return try_lock_for_ticks( pdMS_TO_TICKS(duration_ms.count()) );
 	}
 
-	bool try_lock_for_ticks(const TickType_t ticks)
+	virtual bool try_lock_for_ticks(const TickType_t ticks)
 	{
 		return pdTRUE == xSemaphoreTake(m_mutex, ticks);
 	}
 
-	void unlock()
+	virtual void unlock()
 	{
 		xSemaphoreGive(m_mutex);
 	}

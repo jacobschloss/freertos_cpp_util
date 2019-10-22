@@ -20,6 +20,17 @@ public:
 	{
 
 	}
+
+	bool try_lock_for_ticks(const TickType_t ticks) override
+	{
+		return pdTRUE == xSemaphoreTakeRecursive(m_mutex, ticks);
+	}
+
+	void unlock() override
+	{
+		xSemaphoreGiveRecursive(m_mutex);
+	}
+
 protected:
 	StaticSemaphore_t m_mutex_buf;
 };
