@@ -59,6 +59,28 @@ const char* Logger::LOG_SEVERITY_to_str(const LOG_SEVERITY level)
 	return "UNKNOWN";
 }
 
+
+/*
+bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...)
+{
+	//cook the string
+	std::array<char, 128> msg_buf;
+	va_list args;
+	va_start (args, fmt);
+	int ret = vsnprintf(reinterpret_cast<char*>(msg_buf.data()), msg_buf.size(), fmt, args);
+	va_end(args);
+	size_t num_to_print = std::min<size_t>(ret, msg_buf.size()-1);	
+
+	if(xPortIsInsideInterrupt() == pdFALSE)
+	{
+		log(level, module_name, msg_buf);
+	}
+	else
+	{
+		log_isr(level, module_name, msg_buf);
+	}
+}
+*/
 bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...)
 {
 	//get a log buffer or fail
