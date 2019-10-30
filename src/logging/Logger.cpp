@@ -5,6 +5,8 @@
  * @license Licensed under the 3-Clause BSD license. See LICENSE for details
 */
 
+#include "common_util/Byte_util.hpp"
+
 #include "freertos_cpp_util/logging/Logger.hpp"
 #include "freertos_cpp_util/Task_base.hpp"
 
@@ -19,19 +21,13 @@ namespace logging
 bool Logger::get_time_str(const uint32_t tick_count, Time_str* const time_str)
 {
 	std::array<char, 8+2+1> buf;
-	{
-		TickType_t tick_count = xTaskGetTickCount();
-		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
-		int ret = snprintf(buf.data(), buf.size(), "0x%08" PRIX32, tick_count);
 
-		if(ret < 0)
-		{
-			return false;
-		}
+	buf[0] = '0';
+	buf[1] = 'x';
+	Byte_util::u32_to_hex(tick_count, buf.data() + 2);
+	buf.back() = '\0';
 
-		const size_t num_to_print = std::min<size_t>(ret, buf.size()-1);
-		time_str->assign(buf.data(), num_to_print);
-	}
+	time_str->assign(buf.data(), buf.size()-1);
 
 	return true;
 }
@@ -83,8 +79,13 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 */
 bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...)
 {
+	if(level >= m_sev_mask_level)
+	{
+		return true;
+	}
+
 	//get a log buffer or fail
-	Pool_type::unique_node_ptr log_element = m_log_pool.allocate_unique();
+	Pool_type::unique_node_ptr log_element = m_record_pool.allocate_unique();
 	if(!log_element)
 	{
 		m_overflow = true;
@@ -97,7 +98,12 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 	va_start (args, fmt);
 	int ret = vsnprintf(reinterpret_cast<char*>(msg_buf.data()), msg_buf.size(), fmt, args);
 	va_end(args);
-	size_t num_to_print = std::min<size_t>(ret, msg_buf.size()-1);
+	if(ret < 0)	
+	{
+		return false;
+	}
+
+	const size_t num_to_print = std::min<size_t>(ret, msg_buf.size()-1);
 
 	Time_str time_str;
 	{
@@ -107,11 +113,6 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 		{
 			return false;
 		}
-	}
-
-	if(ret < 0)	
-	{
-		return false;
 	}
 	
 	log_element->push_back('[');
@@ -127,17 +128,22 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 	log_element->append("\r\n");
 	
 	//queue for later handling
-	m_log_buffer.push_back(log_element.release());
+	m_record_buffer.push_back(log_element.release());
 
 	return true;
 }
 
 bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, char* msg)
 {
+	if(level >= m_sev_mask_level)
+	{
+		return true;
+	}
+
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 	//get a log buffer or fail
-	Pool_type::isr_unique_node_ptr log_element = m_log_pool.allocate_unique_isr(&xHigherPriorityTaskWoken);
+	Pool_type::isr_unique_node_ptr log_element = m_record_pool.allocate_unique_isr(&xHigherPriorityTaskWoken);
 	if(!log_element)
 	{
 		m_overflow = true;
@@ -167,7 +173,7 @@ bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, char* ms
 	log_element->append("\r\n");
 	
 	//queue for later handling
-	m_log_buffer.push_back_isr(log_element.release(), &xHigherPriorityTaskWoken);
+	m_record_buffer.push_back_isr(log_element.release(), &xHigherPriorityTaskWoken);
 
 	//run the scheduler if needed
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -183,7 +189,7 @@ void Logger::process_one()
 	//wait for log element
 	{
 		String_type* log_element_raw = nullptr;
-		if(!m_log_buffer.pop_front(&log_element_raw, portMAX_DELAY))
+		if(!m_record_buffer.pop_front(&log_element_raw, portMAX_DELAY))
 		{
 			return;
 		}

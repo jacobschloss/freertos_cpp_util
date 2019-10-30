@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "common_util/Intrusive_slist.hpp"
+
 #include "freertos_cpp_util/object_pool/Object_pool.hpp"
 #include "freertos_cpp_util/Queue_static_pod.hpp"
 
@@ -34,6 +36,11 @@ public:
 		m_sink = sink;
 	}
 
+	void set_sev_mask_level(const LOG_SEVERITY sev_mask_level)
+	{
+		m_sev_mask_level = sev_mask_level;
+	}
+
 	bool log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...);
 	bool log_isr(const LOG_SEVERITY level, const char* module_name, char* msg);
 
@@ -47,13 +54,13 @@ protected:
 
 	static const char* LOG_SEVERITY_to_str(const LOG_SEVERITY level);
 
-	Object_pool<String_type      , NUM_RECORDS> m_log_pool;
-
-	Queue_static_pod<String_type*, NUM_RECORDS> m_log_buffer;
+	Object_pool<String_type      , NUM_RECORDS> m_record_pool;
+	Queue_static_pod<String_type*, NUM_RECORDS> m_record_buffer;
 
 	Log_sink_base* m_sink;
 
 	std::atomic<bool> m_overflow;
+	std::atomic<LOG_SEVERITY> m_sev_mask_level;
 };
 
 }
