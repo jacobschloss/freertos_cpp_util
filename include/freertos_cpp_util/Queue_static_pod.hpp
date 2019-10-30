@@ -24,6 +24,11 @@ public:
 		this->m_queue = xQueueCreateStatic(LEN, sizeof(T), reinterpret_cast<uint8_t*>(m_buf.data()), &m_queue_buf);
 	}
 
+	~Queue_static_pod() override
+	{
+
+	}
+
 protected:
 	StaticQueue_t m_queue_buf;
 
