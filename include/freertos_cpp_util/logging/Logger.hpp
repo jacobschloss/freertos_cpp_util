@@ -41,8 +41,8 @@ public:
 		m_sev_mask_level = sev_mask_level;
 	}
 
-	bool log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...);
-	bool log_isr(const LOG_SEVERITY level, const char* module_name, char* msg);
+	bool log(const LOG_SEVERITY level, const char* module_name, const char* fmt, ...);
+	bool log_isr(const LOG_SEVERITY level, const char* module_name, const char* msg);
 
 	void process_one();
 
@@ -54,7 +54,7 @@ protected:
 
 	static const char* LOG_SEVERITY_to_str(const LOG_SEVERITY level);
 
-	Object_pool<String_type      , NUM_RECORDS> m_record_pool;
+	Pool_type m_record_pool;
 	Queue_static_pod<String_type*, NUM_RECORDS> m_record_buffer;
 
 	Log_sink_base* m_sink;

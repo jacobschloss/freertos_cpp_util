@@ -77,7 +77,7 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 	}
 }
 */
-bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...)
+bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* fmt, ...)
 {
 	if(level >= m_sev_mask_level)
 	{
@@ -128,12 +128,15 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 	log_element->append("\r\n");
 	
 	//queue for later handling
-	m_record_buffer.push_back(log_element.release());
+	if(!m_record_buffer.push_back(log_element.release()))
+	{
+		return false;
+	}
 
 	return true;
 }
 
-bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, char* msg)
+bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, const char* msg)
 {
 	if(level >= m_sev_mask_level)
 	{
@@ -173,7 +176,10 @@ bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, char* ms
 	log_element->append("\r\n");
 	
 	//queue for later handling
-	m_record_buffer.push_back_isr(log_element.release(), &xHigherPriorityTaskWoken);
+	if(!m_record_buffer.push_back_isr(log_element.release(), &xHigherPriorityTaskWoken))
+	{
+		return false;
+	}
 
 	//run the scheduler if needed
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
