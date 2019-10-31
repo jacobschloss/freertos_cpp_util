@@ -79,7 +79,7 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 */
 bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* fmt, ...)
 {
-	if(level >= m_sev_mask_level)
+	if(level > m_sev_mask_level)
 	{
 		return true;
 	}

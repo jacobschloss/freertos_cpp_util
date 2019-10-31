@@ -21,6 +21,8 @@ public:
 
 	Queue_static_pod()
 	{
+		m_queue_buf = {0};
+		
 		this->m_queue = xQueueCreateStatic(LEN, sizeof(T), reinterpret_cast<uint8_t*>(m_buf.data()), &m_queue_buf);
 	}
 

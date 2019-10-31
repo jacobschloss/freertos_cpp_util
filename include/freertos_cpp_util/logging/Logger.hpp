@@ -29,6 +29,8 @@ public:
 	Logger() : m_overflow(false)
 	{
 		m_sink = nullptr;
+
+		m_sev_mask_level = freertos_util::logging::LOG_SEVERITY::INFO;
 	}
 
 	void set_sink(Log_sink_base* const sink)

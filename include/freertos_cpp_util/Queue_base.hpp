@@ -32,6 +32,11 @@ public:
 		return uxQueueMessagesWaiting(m_queue);
 	}
 
+	size_t capacity() const
+	{
+		return uxQueueSpacesAvailable(m_queue);
+	}
+
 	size_t size_isr() const
 	{
 		return uxQueueMessagesWaitingFromISR(m_queue);

@@ -51,6 +51,16 @@ public:
 		return true;
 	}
 
+	bool pop_front_isr(T* const item)
+	{
+		return false;
+	}
+	
+	bool pop_front_isr(T* const item, BaseType_t* const pxHigherPriorityTaskWoken)
+	{
+		return false;
+	}
+
 	bool push_back(const T& item) override
 	{
 		return push_back(item, 0);
