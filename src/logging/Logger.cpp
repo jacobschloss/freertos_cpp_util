@@ -32,21 +32,21 @@ bool Logger::get_time_str(const uint32_t tick_count, Time_str* const time_str)
 	return true;
 }
 
-const char* Logger::LOG_SEVERITY_to_str(const LOG_SEVERITY level)
+const char* Logger::LOG_LEVEL_to_str(const LOG_LEVEL level)
 {
 	switch(level)
 	{
-		case LOG_SEVERITY::FATAL:
+		case LOG_LEVEL::FATAL:
 			return "FATAL";
-		case LOG_SEVERITY::ERROR:
+		case LOG_LEVEL::ERROR:
 			return "ERROR";
-		case LOG_SEVERITY::WARN:
+		case LOG_LEVEL::WARN:
 			return "WARN";
-		case LOG_SEVERITY::INFO:
+		case LOG_LEVEL::INFO:
 			return "INFO";
-		case LOG_SEVERITY::DEBUG:
+		case LOG_LEVEL::DEBUG:
 			return "DEBUG";
-		case LOG_SEVERITY::TRACE:
+		case LOG_LEVEL::TRACE:
 			return "TRACE";
 		default:
 			return "UNKNOWN";
@@ -55,36 +55,13 @@ const char* Logger::LOG_SEVERITY_to_str(const LOG_SEVERITY level)
 	return "UNKNOWN";
 }
 
-
-/*
-bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, ...)
-{
-	//cook the string
-	std::array<char, 128> msg_buf;
-	va_list args;
-	va_start (args, fmt);
-	int ret = vsnprintf(reinterpret_cast<char*>(msg_buf.data()), msg_buf.size(), fmt, args);
-	va_end(args);
-	size_t num_to_print = std::min<size_t>(ret, msg_buf.size()-1);	
-
-	if(xPortIsInsideInterrupt() == pdFALSE)
-	{
-		log(level, module_name, msg_buf);
-	}
-	else
-	{
-		log_isr(level, module_name, msg_buf);
-	}
-}
-*/
-
-void Logger::make_log_element(const char* time_str, LOG_SEVERITY level, const char* module_name, const char* msg, String_type* const out_record)
+void Logger::make_log_element(const char* time_str, LOG_LEVEL level, const char* module_name, const char* msg, String_type* const out_record)
 {
 	out_record->clear();
 	out_record->push_back('[');
 	out_record->append(time_str);
 	out_record->append("][");
-	out_record->append(LOG_SEVERITY_to_str(level));
+	out_record->append(LOG_LEVEL_to_str(level));
 	out_record->append("][");
 	out_record->append(module_name);
 	out_record->push_back(']');
@@ -95,11 +72,32 @@ void Logger::make_log_element(const char* time_str, LOG_SEVERITY level, const ch
 		out_record->pop_back();
 		out_record->pop_back();
 	}
-	
+
 	out_record->append("\r\n");	
 }
 
-bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* fmt, ...)
+bool Logger::log(const LOG_LEVEL level, const char* module_name, const char* fmt, ...)
+{
+	if(level > m_sev_mask_level)
+	{
+		return true;
+	}
+
+	//cook the string
+	std::array<char, 128> msg_buf;
+	va_list args;
+	va_start (args, fmt);
+	int ret = vsnprintf(reinterpret_cast<char*>(msg_buf.data()), msg_buf.size(), fmt, args);
+	va_end(args);
+	if(ret < 0)	
+	{
+		return false;
+	}
+
+	return log_msg(level, module_name, msg_buf.data());
+}
+
+bool Logger::log_msg(const LOG_LEVEL level, const char* module_name, const char* msg)
 {
 	if(level > m_sev_mask_level)
 	{
@@ -114,6 +112,34 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* 
 		return false;
 	}
 
+	Time_str time_str;
+	{
+		const TickType_t tick_count = xTaskGetTickCount();
+		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
+		if(!get_time_str(tick_count, &time_str))
+		{
+			return false;
+		}
+	}
+
+	make_log_element(time_str.c_str(), level, module_name, msg, log_element.get());
+
+	//queue for later handling
+	if(!m_record_buffer.push_back(log_element.release()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool Logger::log_isr(const LOG_LEVEL level, const char* module_name, const char* fmt, ...)
+{
+	if(level > m_sev_mask_level)
+	{
+		return true;
+	}
+
 	//cook the string
 	std::array<char, 128> msg_buf;
 	va_list args;
@@ -125,29 +151,23 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* 
 		return false;
 	}
 
-	Time_str time_str;
+	if(xPortIsInsideInterrupt() == pdFALSE)
 	{
-		const TickType_t tick_count = xTaskGetTickCount();
-		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
-		if(!get_time_str(tick_count, &time_str))
-		{
-			return false;
-		}
-	}
-	
-	make_log_element(time_str.c_str(), level, module_name, msg_buf.data(), log_element.get());
-
-	//queue for later handling
-	if(!m_record_buffer.push_back(log_element.release()))
-	{
-		return false;
+		return log_msg(level, module_name, msg_buf.data());
 	}
 
-	return true;
+	return log_msg_isr(level, module_name, msg_buf.data());
 }
 
-bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, const char* msg)
+bool Logger::log_msg_isr(const LOG_LEVEL level, const char* module_name, const char* msg)
 {
+	//verify this is really an interrupt
+	//in some cases eg the USB library will have a code path that is optionally polled or ISR
+	if(xPortIsInsideInterrupt() == pdFALSE)
+	{
+		return log_msg(level, module_name, msg);
+	}
+
 	if(level >= m_sev_mask_level)
 	{
 		return true;

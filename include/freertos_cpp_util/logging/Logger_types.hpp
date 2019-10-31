@@ -20,7 +20,7 @@ namespace logging
 	typedef Stack_string<128> String_type;
 	typedef Object_pool<String_type, NUM_RECORDS> Pool_type;
 
-	enum class LOG_SEVERITY
+	enum class LOG_LEVEL
 	{
 		FATAL,
 		ERROR,
