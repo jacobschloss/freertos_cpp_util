@@ -32,7 +32,7 @@ public:
 		return uxQueueMessagesWaiting(m_queue);
 	}
 
-	size_t capacity() const
+	size_t reserve() const
 	{
 		return uxQueueSpacesAvailable(m_queue);
 	}

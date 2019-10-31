@@ -7,8 +7,16 @@
 
 #include "freertos_cpp_util/logging/Log_sink_console.hpp"
 
+namespace freertos_util
+{
+namespace logging
+{
+
 bool Log_sink_console::handle_log(String_type* const log)
 {
 	int ret = printf("%s", log->c_str());
 	return ret > 0;
+}
+
+}
 }

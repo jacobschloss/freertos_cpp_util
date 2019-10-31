@@ -37,6 +37,8 @@ add_library(freertos_cpp_util
 
 	src/logging/Logger.cpp
 	src/logging/Log_sink_base.cpp
+	src/logging/Logger_types.cpp
+	src/logging/Log_sink_console.cpp
 )
 
 

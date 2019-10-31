@@ -26,11 +26,9 @@ class Logger
 {
 public:
 
-	Logger() : m_overflow(false)
+	Logger() : m_overflow(false), m_sev_mask_level(freertos_util::logging::LOG_SEVERITY::INFO)
 	{
 		m_sink = nullptr;
-
-		m_sev_mask_level = freertos_util::logging::LOG_SEVERITY::INFO;
 	}
 
 	void set_sink(Log_sink_base* const sink)
@@ -53,8 +51,9 @@ protected:
 	typedef Stack_string<8+2+1> Time_str;
 
 	static bool get_time_str(const uint32_t tick_count, Time_str* const time_str);
-
 	static const char* LOG_SEVERITY_to_str(const LOG_SEVERITY level);
+
+	static void make_log_element(const char* time_str, LOG_SEVERITY level, const char* module_name, const char* msg, String_type* const out_record);
 
 	Pool_type m_record_pool;
 	Queue_static_pod<String_type*, NUM_RECORDS> m_record_buffer;

@@ -77,6 +77,28 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, char* fmt, .
 	}
 }
 */
+
+void Logger::make_log_element(const char* time_str, LOG_SEVERITY level, const char* module_name, const char* msg, String_type* const out_record)
+{
+	out_record->clear();
+	out_record->push_back('[');
+	out_record->append(time_str);
+	out_record->append("][");
+	out_record->append(LOG_SEVERITY_to_str(level));
+	out_record->append("][");
+	out_record->append(module_name);
+	out_record->push_back(']');
+	out_record->append(msg);
+
+	if(out_record->full())
+	{
+		out_record->pop_back();
+		out_record->pop_back();
+	}
+	
+	out_record->append("\r\n");	
+}
+
 bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* fmt, ...)
 {
 	if(level > m_sev_mask_level)
@@ -103,8 +125,6 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* 
 		return false;
 	}
 
-	const size_t num_to_print = std::min<size_t>(ret, msg_buf.size()-1);
-
 	Time_str time_str;
 	{
 		const TickType_t tick_count = xTaskGetTickCount();
@@ -115,18 +135,8 @@ bool Logger::log(const LOG_SEVERITY level, const char* module_name, const char* 
 		}
 	}
 	
-	log_element->push_back('[');
-	log_element->append(time_str);
-	log_element->push_back(']');
-	log_element->push_back('[');
-	log_element->append(LOG_SEVERITY_to_str(level));
-	log_element->push_back(']');
-	log_element->push_back('[');
-	log_element->append(module_name);
-	log_element->push_back(']');
-	log_element->append(msg_buf.data(), num_to_print);
-	log_element->append("\r\n");
-	
+	make_log_element(time_str.c_str(), level, module_name, msg_buf.data(), log_element.get());
+
 	//queue for later handling
 	if(!m_record_buffer.push_back(log_element.release()))
 	{
@@ -163,17 +173,7 @@ bool Logger::log_isr(const LOG_SEVERITY level, const char* module_name, const ch
 		}
 	}
 	
-	log_element->push_back('[');
-	log_element->append(time_str);
-	log_element->push_back(']');
-	log_element->push_back('[');
-	log_element->append(LOG_SEVERITY_to_str(level));
-	log_element->push_back(']');
-	log_element->push_back('[');
-	log_element->append(module_name);
-	log_element->push_back(']');
-	log_element->append(msg);
-	log_element->append("\r\n");
+	make_log_element(time_str.c_str(), level, module_name, msg, log_element.get());
 	
 	//queue for later handling
 	if(!m_record_buffer.push_back_isr(log_element.release(), &xHigherPriorityTaskWoken))
