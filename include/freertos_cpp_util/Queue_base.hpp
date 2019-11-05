@@ -142,10 +142,10 @@ public:
 
 		if(wait)
 		{
-			while(pop_front(item, portMAX_DELAY) != true)
+			do
 			{
-
-			}
+				ret = pop_front(item, portMAX_DELAY);
+			} while(ret != true);
 		}
 		else
 		{
@@ -187,10 +187,10 @@ public:
 
 		if(wait)
 		{
-			while(push_back(item, portMAX_DELAY) != true)
+			do
 			{
-
-			}
+				ret = push_back(item, portMAX_DELAY);
+			} while(ret != true);
 		}
 		else
 		{
@@ -216,10 +216,10 @@ public:
 
 		if(wait)
 		{
-			while(push_front(item, portMAX_DELAY) != true)
+			do
 			{
-
-			}
+				ret = push_front(item, portMAX_DELAY);
+			} while(ret != true);
 		}
 		else
 		{
