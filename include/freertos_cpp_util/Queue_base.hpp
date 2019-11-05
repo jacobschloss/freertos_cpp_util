@@ -82,7 +82,7 @@ class Queue_template_base : public Queue_base
 public:
 
 	virtual bool pop_front(T* const item) = 0;
-
+	virtual bool pop_front_wait(T* const item, const bool wait) = 0;
 	virtual bool pop_front(T* const item, const TickType_t xTicksToWait) = 0;
 
 	template< class Rep, class Period >
@@ -93,11 +93,10 @@ public:
 	}
 
 	virtual bool pop_front_isr(T* const item) = 0;
-
 	virtual bool pop_front_isr(T* const item, BaseType_t* const pxHigherPriorityTaskWoken) = 0;
 
 	virtual bool push_back(const T& item) = 0;
-
+	virtual bool push_back_wait(const T& item, const bool wait) = 0;
 	virtual bool push_back(const T& item, const TickType_t xTicksToWait) = 0;
 
 	template< class Rep, class Period >
@@ -108,7 +107,7 @@ public:
 	}
 
 	virtual bool push_front(const T& item) = 0;
-
+	virtual bool push_front_wait(const T& item, const bool wait) = 0;
 	virtual bool push_front(const T& item, const TickType_t xTicksToWait) = 0;
 
 	template< class Rep, class Period >
@@ -119,11 +118,9 @@ public:
 	}
 
 	virtual bool push_front_isr(const T& item) = 0;
-
 	virtual bool push_front_isr(const T& item, BaseType_t* const pxHigherPriorityTaskWoken) = 0;
 
 	virtual bool push_back_isr(const T& item) = 0;
-
 	virtual bool push_back_isr(const T& item, BaseType_t* const pxHigherPriorityTaskWoken) = 0;
 };
 
@@ -137,6 +134,25 @@ public:
 	bool pop_front(T* const item) override
 	{
 		return pop_front(item, 0);
+	}
+
+	bool pop_front_wait(T* const item, const bool wait) override
+	{
+		bool ret = false;
+
+		if(wait)
+		{
+			while(pop_front(item, portMAX_DELAY) != true)
+			{
+
+			}
+		}
+		else
+		{
+			ret = pop_front(item, 0);
+		}
+
+		return ret;
 	}
 
 	bool pop_front(T* const item, const TickType_t xTicksToWait) override
@@ -165,6 +181,25 @@ public:
 		return push_back(item, 0);
 	}
 
+	bool push_back_wait(const T& item, const bool wait) override
+	{
+		bool ret = false;
+
+		if(wait)
+		{
+			while(push_back(item, portMAX_DELAY) != true)
+			{
+
+			}
+		}
+		else
+		{
+			ret = push_back(item, 0);
+		}
+
+		return ret;
+	}
+
 	bool push_back(const T& item, const TickType_t xTicksToWait) override
 	{
 		return xQueueSendToBack(this->m_queue, &item, xTicksToWait) == pdTRUE;
@@ -173,6 +208,25 @@ public:
 	bool push_front(const T& item) override
 	{
 		return push_front(item, 0);
+	}
+
+	bool push_front_wait(const T& item, const bool wait) override
+	{
+		bool ret = false;
+
+		if(wait)
+		{
+			while(push_front(item, portMAX_DELAY) != true)
+			{
+
+			}
+		}
+		else
+		{
+			ret = push_front(item, 0);
+		}
+
+		return ret;
 	}
 
 	bool push_front(const T& item, const TickType_t xTicksToWait) override
