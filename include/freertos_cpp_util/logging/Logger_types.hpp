@@ -27,7 +27,9 @@ namespace logging
 		WARN,
 		INFO,
 		DEBUG,
-		TRACE
+		DEBUG_VERBOSE,
+		TRACE,
+		TRACE_VERBOSE,
 	};
 }
 }
