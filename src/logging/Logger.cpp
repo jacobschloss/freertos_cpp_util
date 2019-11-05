@@ -94,6 +94,13 @@ bool Logger::log(const LOG_LEVEL level, const char* module_name, const char* fmt
 		return false;
 	}
 
+	//verify if this is really an interrupt
+	//in some cases eg the USB library will have a code path that is optionally polled or ISR
+	if(xPortIsInsideInterrupt() == pdTRUE)
+	{
+		return log_msg_isr(level, module_name, msg_buf.data());
+	}
+
 	return log_msg(level, module_name, msg_buf.data());
 }
 
@@ -102,6 +109,13 @@ bool Logger::log_msg(const LOG_LEVEL level, const char* module_name, const char*
 	if(level > m_sev_mask_level)
 	{
 		return true;
+	}
+
+	//verify if this is really an interrupt
+	//in some cases eg the USB library will have a code path that is optionally polled or ISR
+	if(xPortIsInsideInterrupt() == pdTRUE)
+	{
+		return log_msg_isr(level, module_name, msg);
 	}
 
 	//get a log buffer or fail
@@ -151,23 +165,11 @@ bool Logger::log_isr(const LOG_LEVEL level, const char* module_name, const char*
 		return false;
 	}
 
-	if(xPortIsInsideInterrupt() == pdFALSE)
-	{
-		return log_msg(level, module_name, msg_buf.data());
-	}
-
 	return log_msg_isr(level, module_name, msg_buf.data());
 }
 
 bool Logger::log_msg_isr(const LOG_LEVEL level, const char* module_name, const char* msg)
 {
-	//verify this is really an interrupt
-	//in some cases eg the USB library will have a code path that is optionally polled or ISR
-	if(xPortIsInsideInterrupt() == pdFALSE)
-	{
-		return log_msg(level, module_name, msg);
-	}
-
 	if(level >= m_sev_mask_level)
 	{
 		return true;
