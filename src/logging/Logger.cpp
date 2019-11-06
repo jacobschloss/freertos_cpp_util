@@ -165,7 +165,7 @@ bool Logger::log_isr(const LOG_LEVEL level, const char* module_name, const char*
 
 bool Logger::log_msg_isr(const LOG_LEVEL level, const char* module_name, const char* msg)
 {
-	if(level >= m_sev_mask_level)
+	if(level > m_sev_mask_level)
 	{
 		return true;
 	}
