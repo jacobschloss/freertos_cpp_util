@@ -18,7 +18,7 @@ namespace freertos_util
 namespace logging
 {
 
-bool Logger::get_time_str(const uint32_t tick_count, Time_str* const time_str)
+void Logger::get_time_str(const uint32_t tick_count, Time_str* const time_str)
 {
 	std::array<char, 8+2+1> buf;
 
@@ -28,8 +28,6 @@ bool Logger::get_time_str(const uint32_t tick_count, Time_str* const time_str)
 	buf.back() = '\0';
 
 	time_str->assign(buf.data(), buf.size()-1);
-
-	return true;
 }
 
 const char* Logger::LOG_LEVEL_to_str(const LOG_LEVEL level)
@@ -130,10 +128,7 @@ bool Logger::log_msg(const LOG_LEVEL level, const char* module_name, const char*
 	{
 		const TickType_t tick_count = xTaskGetTickCount();
 		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
-		if(!get_time_str(tick_count, &time_str))
-		{
-			return false;
-		}
+		get_time_str(tick_count, &time_str);
 	}
 
 	make_log_element(time_str.c_str(), level, module_name, msg, log_element.get());
@@ -189,10 +184,7 @@ bool Logger::log_msg_isr(const LOG_LEVEL level, const char* module_name, const c
 	{
 		const TickType_t tick_count = xTaskGetTickCountFromISR();
 		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
-		if(!get_time_str(tick_count, &time_str))
-		{
-			return false;
-		}
+		get_time_str(tick_count, &time_str);
 	}
 	
 	make_log_element(time_str.c_str(), level, module_name, msg, log_element.get());

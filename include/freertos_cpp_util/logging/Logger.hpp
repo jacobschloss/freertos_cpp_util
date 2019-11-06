@@ -52,7 +52,7 @@ protected:
 
 	typedef Stack_string<8+2+1> Time_str;
 
-	static bool get_time_str(const uint32_t tick_count, Time_str* const time_str);
+	static void get_time_str(const uint32_t tick_count, Time_str* const time_str);
 	static const char* LOG_LEVEL_to_str(const LOG_LEVEL level);
 
 	static void make_log_element(const char* time_str, LOG_LEVEL level, const char* module_name, const char* msg, String_type* const out_record);
