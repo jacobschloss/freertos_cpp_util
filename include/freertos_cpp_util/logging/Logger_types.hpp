@@ -29,7 +29,9 @@ namespace logging
 		DEBUG,
 		DEBUG_VERBOSE,
 		TRACE,
-		TRACE_VERBOSE,
+		TRACE_VERBOSE
 	};
+
+	const char* LOG_LEVEL_to_str(const LOG_LEVEL lvl);
 }
 }
