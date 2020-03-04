@@ -5,6 +5,8 @@
  * @license Licensed under the 3-Clause BSD license. See LICENSE for details
 */
 
+#pragma once
+
 #include "freertos_cpp_util/logging/Logger.hpp"
 
 #include <atomic>
