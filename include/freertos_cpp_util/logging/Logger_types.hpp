@@ -15,7 +15,7 @@ namespace freertos_util
 {
 namespace logging
 {
-	constexpr static size_t NUM_RECORDS = 32;
+	constexpr static size_t NUM_RECORDS = 64;
 
 	typedef Stack_string<128> String_type;
 	typedef Object_pool<String_type, NUM_RECORDS> Pool_type;
