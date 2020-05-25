@@ -51,3 +51,10 @@ target_link_libraries(freertos_cpp_util
 	common_util
 	freertos_v10
 )
+
+if(DEFINED Doxygen::doxygen)
+	doxygen_add_docs(freertos_cpp_util_docs
+		include/
+		src/
+	)
+endif()
