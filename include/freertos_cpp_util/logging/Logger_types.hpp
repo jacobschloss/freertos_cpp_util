@@ -22,6 +22,7 @@ namespace logging
 
 	enum class LOG_LEVEL
 	{
+		DISABLED,
 		FATAL,
 		ERROR,
 		WARN,

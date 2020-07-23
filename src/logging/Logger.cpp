@@ -81,6 +81,11 @@ bool Logger::log(const LOG_LEVEL level, const char* module_name, const char* fmt
 		return true;
 	}
 
+	if(level == LOG_LEVEL::DISABLED)
+	{
+		return true;
+	}
+
 	//cook the string
 	std::array<char, 128> msg_buf;
 	va_list args;
@@ -105,6 +110,11 @@ bool Logger::log(const LOG_LEVEL level, const char* module_name, const char* fmt
 bool Logger::log_msg(const LOG_LEVEL level, const char* module_name, const char* msg)
 {
 	if(level > m_sev_mask_level)
+	{
+		return true;
+	}
+
+	if(level == LOG_LEVEL::DISABLED)
 	{
 		return true;
 	}
@@ -149,6 +159,11 @@ bool Logger::log_isr(const LOG_LEVEL level, const char* module_name, const char*
 		return true;
 	}
 
+	if(level == LOG_LEVEL::DISABLED)
+	{
+		return true;
+	}
+
 	//cook the string
 	std::array<char, 128> msg_buf;
 	va_list args;
@@ -166,6 +181,11 @@ bool Logger::log_isr(const LOG_LEVEL level, const char* module_name, const char*
 bool Logger::log_msg_isr(const LOG_LEVEL level, const char* module_name, const char* msg)
 {
 	if(level > m_sev_mask_level)
+	{
+		return true;
+	}
+
+	if(level == LOG_LEVEL::DISABLED)
 	{
 		return true;
 	}
