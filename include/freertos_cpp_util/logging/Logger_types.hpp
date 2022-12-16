@@ -22,15 +22,13 @@ namespace logging
 
 	enum class LOG_LEVEL
 	{
-		DISABLED,
-		FATAL,
-		ERROR,
-		WARN,
-		INFO,
-		DEBUG,
-		DEBUG_VERBOSE,
-		TRACE,
-		TRACE_VERBOSE
+		disabled,
+		fatal,
+		error,
+		warn,
+		info,
+		debug,
+		trace
 	};
 
 	const char* LOG_LEVEL_to_str(const LOG_LEVEL lvl);
