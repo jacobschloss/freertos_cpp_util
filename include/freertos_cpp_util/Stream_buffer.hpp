@@ -40,6 +40,11 @@ public:
 		return m_handle != nullptr;
 	}
 
+	virtual bool create(uint8_t* const buf, const size_t len)
+	{
+		return false;
+	}
+
 	virtual void reset()
 	{
 		if(m_handle)
@@ -134,7 +139,12 @@ public:
 		m_buf = nullptr;
 	}
 
-	bool create(uint8_t* const buf, const size_t len)
+	virtual bool create(const size_t len)
+	{
+		return false;
+	}
+
+	virtual bool create(uint8_t* const buf, const size_t len)
 	{
 		if(m_handle)
 		{
