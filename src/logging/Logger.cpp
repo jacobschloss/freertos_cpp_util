@@ -34,18 +34,18 @@ const char* Logger::LOG_LEVEL_to_str(const LOG_LEVEL level)
 {
 	switch(level)
 	{
-		case LOG_LEVEL::FATAL:
-			return "FATAL";
-		case LOG_LEVEL::ERROR:
-			return "ERROR";
-		case LOG_LEVEL::WARN:
-			return "WARN";
-		case LOG_LEVEL::INFO:
-			return "INFO";
-		case LOG_LEVEL::DEBUG:
-			return "DEBUG";
-		case LOG_LEVEL::TRACE:
-			return "TRACE";
+		case LOG_LEVEL::fatal:
+			return "fatal";
+		case LOG_LEVEL::error:
+			return "error";
+		case LOG_LEVEL::warn:
+			return "warn";
+		case LOG_LEVEL::info:
+			return "info";
+		case LOG_LEVEL::debug:
+			return "debug";
+		case LOG_LEVEL::trace:
+			return "trace";
 		default:
 			return "UNKNOWN";
 	}
@@ -81,7 +81,7 @@ bool Logger::log(const LOG_LEVEL level, const char* module_name, const char* fmt
 		return true;
 	}
 
-	if(level == LOG_LEVEL::DISABLED)
+	if(level == LOG_LEVEL::disabled)
 	{
 		return true;
 	}
@@ -114,7 +114,7 @@ bool Logger::log_msg(const LOG_LEVEL level, const char* module_name, const char*
 		return true;
 	}
 
-	if(level == LOG_LEVEL::DISABLED)
+	if(level == LOG_LEVEL::disabled)
 	{
 		return true;
 	}
@@ -159,7 +159,7 @@ bool Logger::log_isr(const LOG_LEVEL level, const char* module_name, const char*
 		return true;
 	}
 
-	if(level == LOG_LEVEL::DISABLED)
+	if(level == LOG_LEVEL::disabled)
 	{
 		return true;
 	}
@@ -185,7 +185,7 @@ bool Logger::log_msg_isr(const LOG_LEVEL level, const char* module_name, const c
 		return true;
 	}
 
-	if(level == LOG_LEVEL::DISABLED)
+	if(level == LOG_LEVEL::disabled)
 	{
 		return true;
 	}

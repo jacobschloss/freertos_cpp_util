@@ -26,7 +26,7 @@ class Logger
 {
 public:
 
-	Logger() : m_overflow(false), m_sev_mask_level(freertos_util::logging::LOG_LEVEL::INFO)
+	Logger() : m_overflow(false), m_sev_mask_level(freertos_util::logging::LOG_LEVEL::info)
 	{
 		m_sink = nullptr;
 	}

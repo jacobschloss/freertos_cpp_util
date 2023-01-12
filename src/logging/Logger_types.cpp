@@ -19,49 +19,39 @@ namespace logging
 
 		switch(lvl)
 		{
-			case LOG_LEVEL::FATAL:
+			case LOG_LEVEL::fatal:
 			{
-				str = "FATAL";
+				str = "fatal";
 				break;
 			}
-			case LOG_LEVEL::ERROR:
+			case LOG_LEVEL::error:
 			{
-				str = "ERROR";
+				str = "error";
 				break;
 			}
-			case LOG_LEVEL::WARN:
+			case LOG_LEVEL::warn:
 			{
-				str = "WARN";
+				str = "warn";
 				break;
 			}
-			case LOG_LEVEL::INFO:
+			case LOG_LEVEL::info:
 			{
-				str = "INFO";
+				str = "info";
 				break;
 			}
-			case LOG_LEVEL::DEBUG:
+			case LOG_LEVEL::debug:
 			{
-				str = "DEBUG";
+				str = "debug";
 				break;
 			}
-			case LOG_LEVEL::DEBUG_VERBOSE:
+			case LOG_LEVEL::trace:
 			{
-				str = "DEBUG_VERBOSE";
-				break;
-			}
-			case LOG_LEVEL::TRACE:
-			{
-				str = "TRACE";
-				break;
-			}
-			case LOG_LEVEL::TRACE_VERBOSE:
-			{
-				str = "TRACE_VERBOSE";
+				str = "trace";
 				break;
 			}
 			default:
 			{
-				str = "Invalid";
+				str = "invalid";
 				break;
 			}
 		}
