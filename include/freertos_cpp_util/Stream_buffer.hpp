@@ -19,53 +19,31 @@ public:
 	Stream_buffer()
 	{
 		m_handle = nullptr;
-		memset(&m_inst, 0, sizeof(m_inst));
-
-		m_buf = nullptr;
 		m_len = 0;
 	}
-	~Stream_buffer()
+	virtual ~Stream_buffer()
 	{
 		reset();
 	}
 
-	bool create(uint8_t* const buf, const size_t len)
+	virtual bool create(const size_t len)
 	{
 		if(m_handle)
 		{
 			reset();
 		}
-
-		m_buf = buf;
+	
 		m_len = len;
-
-		m_handle = xStreamBufferCreateStatic(m_len, 1, m_buf, &m_inst);
-
+	
+		m_handle = xStreamBufferCreate(m_len, 1);
+	
 		return m_handle != nullptr;
 	}
 
-	// bool create(const size_t len)
-	// {
-	// 	if(m_handle)
-	// 	{
-	// 		reset();
-	// 	}
-	//
-	// 	m_buf = nullptr;
-	// 	m_len = len;
-	//
-	// 	m_handle = xStreamBufferCreate(m_len, 1);
-	//
-	// 	return m_handle != nullptr;
-	// }
-
-	void reset()
+	virtual void reset()
 	{
 		vStreamBufferDelete(m_handle);
 		m_handle = nullptr;
-		memset(&m_inst, 0, sizeof(m_inst));
-
-		m_buf = nullptr;
 		m_len = 0;
 	}
 
@@ -140,8 +118,44 @@ public:
 
 protected:
 	StreamBufferHandle_t m_handle;
+	size_t   m_len;
+};
+
+class Stream_buffer_static : public Stream_buffer
+{
+public:
+
+	Stream_buffer_static()
+	{
+		memset(&m_inst, 0, sizeof(m_inst));
+		m_buf = nullptr;
+	}
+
+	bool create(uint8_t* const buf, const size_t len)
+	{
+		if(m_handle)
+		{
+			reset();
+		}
+
+		m_buf = buf;
+		m_len = len;
+
+		m_handle = xStreamBufferCreateStatic(m_len, 1, m_buf, &m_inst);
+
+		return m_handle != nullptr;
+	}
+
+	virtual void reset()
+	{
+		Stream_buffer::reset();
+
+		memset(&m_inst, 0, sizeof(m_inst));
+		m_buf = nullptr;
+	}
+
+protected:
 	StaticStreamBuffer_t m_inst;
 
 	uint8_t* m_buf;
-	size_t   m_len;
 };
