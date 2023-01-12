@@ -42,8 +42,11 @@ public:
 
 	virtual void reset()
 	{
-		vStreamBufferDelete(m_handle);
-		m_handle = nullptr;
+		if(m_handle)
+		{
+			vStreamBufferDelete(m_handle);
+			m_handle = nullptr;
+		}
 		m_len = 0;
 	}
 
