@@ -55,6 +55,11 @@ public:
 		m_len = 0;
 	}
 
+	bool clear()
+	{
+		return xMessageBufferReset(m_handle) == pdPASS;
+	}
+
 	template< class Rep, class Period >
 	size_t write(uint8_t const * const data, const size_t len, const std::chrono::duration<Rep,Period>& duration)
 	{

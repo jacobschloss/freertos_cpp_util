@@ -55,6 +55,11 @@ public:
 		m_len = 0;
 	}
 
+	bool clear()
+	{
+		return xStreamBufferReset(m_handle) == pdPASS;
+	}
+
 	bool set_trigger_level(const size_t len)
 	{
 		return xStreamBufferSetTriggerLevel(m_handle, len) == pdTRUE;
