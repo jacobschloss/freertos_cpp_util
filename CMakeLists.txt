@@ -26,6 +26,8 @@ add_library(freertos_cpp_util
 	src/Task_heap.cpp
 	src/Task_static.cpp
 
+	src/Task_watcher.cpp
+
 	src/Mutex_base.cpp
 	src/Mutex_heap.cpp
 	src/Mutex_static.cpp
