@@ -10,6 +10,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <functional>
 // #include <version>
 
 class Once_flag;
