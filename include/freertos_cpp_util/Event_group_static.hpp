@@ -9,10 +9,10 @@
 
 #include "freertos_cpp_util/Event_group.hpp"
 
-class Event_group_statc : public Event_group
+class Event_group_static : public Event_group
 {
 public:
-	Event_group_statc()
+	Event_group_static()
 	{
 		m_handle = xEventGroupCreateStatic(&m_inst);
 	}
