@@ -54,7 +54,7 @@ target_include_directories(freertos_cpp_util PUBLIC
 
 target_link_libraries(freertos_cpp_util
 	common_util
-	freertos_kernel
+	freertos_v10
 )
 
 if(DEFINED Doxygen::doxygen)
